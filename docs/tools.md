@@ -1,3 +1,5 @@
+**English** | [简体中文](tools.zh-CN.md)
+
 # Tool reference
 
 All tools are exposed by both transports (`local` / stdio and `remote` / HTTP).

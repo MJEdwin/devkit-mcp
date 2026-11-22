@@ -181,7 +181,8 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 |---|---|
 | `generate_uuid` | Generate a UUID v4 or v7, with optional uppercase / hyphen control |
 
-Full parameter tables and examples: [`docs/tools.md`](docs/tools.md).
+Full parameter tables and examples: [`docs/tools.md`](docs/tools.md)
+(English) / [`docs/tools.zh-CN.md`](docs/tools.zh-CN.md) (简体中文).
 
 ## Prebuilt binaries
 
