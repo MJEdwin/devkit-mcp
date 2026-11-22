@@ -29,6 +29,7 @@ getrandom = { version = "0.4", features = ["sys_rng"] }
 hex-simd = "0.8"
 hmac = "0.12"
 http = "1"
+lunar-lite = "1.3"
 md-5 = "0.10"
 ofb = "0.7"
 percent-encoding = "2"

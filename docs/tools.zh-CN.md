@@ -86,6 +86,64 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 拒绝：不带时区偏移的 naive 日期时间（例如 `2023-11-14T22:13:20`）以及
 仅日期字符串。
 
+---
+
+### shanghai_lunar_date
+
+把时间转换为中国标准时间（上海时间），并返回对应的农历日期。
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `datetime` | string (`format: date-time`) | 是 | RFC 3339 日期时间，**必须带时区偏移** |
+
+输入会先转换为 Asia/Shanghai（UTC+8，无夏令时），再按该上海日历日期计算
+农历。支持的公历年范围：`1..=9999`。
+
+结果会同时以美化后的 JSON 文本和 `structuredContent` 返回；该工具还会在
+`tools/list` 中声明 `outputSchema`。
+
+字段：
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `shanghai_time` | string | 输入时间对应的上海时间，RFC 3339，偏移为 `+08:00` |
+| `lunar_year` | integer | 农历年 |
+| `lunar_month` | integer | 农历月（`1`–`12`） |
+| `lunar_day` | integer | 农历日（`1`–`30`） |
+| `is_leap_month` | boolean | 是否为闰月 |
+| `lunar_month_name` | string | 中文月份名（`正月` … `腊月`；闰月带 `闰` 前缀） |
+| `lunar_day_name` | string | 中文日期名（`初一` … `三十`） |
+| `lunar_date` | string | 完整中文日期，例如 `二〇二四年正月初一` |
+| `lunar_year_ganzhi` | string | 干支纪年，例如 `甲辰` |
+| `lunar_year_stem` | string | 天干，例如 `甲` |
+| `lunar_year_branch` | string | 地支，例如 `辰` |
+
+示例：`2024-02-09T16:00:00Z` 对应上海时间
+`2024-02-10T00:00:00+08:00`，是 2024 年农历正月初一：
+
+```json
+{
+  "shanghai_time": "2024-02-10T00:00:00+08:00",
+  "lunar_year": 2024,
+  "lunar_month": 1,
+  "lunar_day": 1,
+  "is_leap_month": false,
+  "lunar_month_name": "正月",
+  "lunar_day_name": "初一",
+  "lunar_date": "二〇二四年正月初一",
+  "lunar_year_ganzhi": "甲辰",
+  "lunar_year_stem": "甲",
+  "lunar_year_branch": "辰"
+}
+```
+
+闰月会以 `is_leap_month: true` 和 `闰` 前缀表示，例如
+`2023-03-22` → `二〇二三年闰二月初一`。
+
+干支纪年按农历年计算（以 `1984 = 甲子` 为基准），不采用立春换年规则。
+
+转换为上海时间后公历年超出 `1..=9999` 时返回 `isError: true`。
+
 ## 编码（Encoding）
 
 ### url_encode

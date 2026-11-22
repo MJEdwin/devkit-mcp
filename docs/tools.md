@@ -86,6 +86,66 @@ Accepted: `2023-11-14T22:13:20Z`, `2023-11-14T22:13:20.123Z`,
 Rejected: naive datetimes without an offset (e.g. `2023-11-14T22:13:20`) and
 date-only strings.
 
+---
+
+### shanghai_lunar_date
+
+Convert a time to China Standard Time and return the Chinese lunar date.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `datetime` | string (`format: date-time`) | yes | RFC 3339 datetime **with a timezone offset** |
+
+The input is converted to Asia/Shanghai (UTC+8, no DST), and the lunar date is
+computed for that Shanghai calendar date. Supported solar years: `1..=9999`.
+
+The result is returned both as pretty-printed JSON text and as
+`structuredContent`; the tool also declares an `outputSchema` in `tools/list`.
+
+Fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `shanghai_time` | string | Input time in Asia/Shanghai, RFC 3339 with `+08:00` |
+| `lunar_year` | integer | Chinese lunar year |
+| `lunar_month` | integer | Lunar month (`1`–`12`) |
+| `lunar_day` | integer | Lunar day (`1`–`30`) |
+| `is_leap_month` | boolean | Whether the month is a leap month |
+| `lunar_month_name` | string | Chinese month name (`正月` … `腊月`; `闰` prefix for leap months) |
+| `lunar_day_name` | string | Chinese day name (`初一` … `三十`) |
+| `lunar_date` | string | Full Chinese date, e.g. `二〇二四年正月初一` |
+| `lunar_year_ganzhi` | string | Sexagenary year (天干地支), e.g. `甲辰` |
+| `lunar_year_stem` | string | Heavenly Stem (天干), e.g. `甲` |
+| `lunar_year_branch` | string | Earthly Branch (地支), e.g. `辰` |
+
+Example: `2024-02-09T16:00:00Z` is `2024-02-10T00:00:00+08:00` in Shanghai,
+the first day of the 2024 lunar year:
+
+```json
+{
+  "shanghai_time": "2024-02-10T00:00:00+08:00",
+  "lunar_year": 2024,
+  "lunar_month": 1,
+  "lunar_day": 1,
+  "is_leap_month": false,
+  "lunar_month_name": "正月",
+  "lunar_day_name": "初一",
+  "lunar_date": "二〇二四年正月初一",
+  "lunar_year_ganzhi": "甲辰",
+  "lunar_year_stem": "甲",
+  "lunar_year_branch": "辰"
+}
+```
+
+Leap months are reported with `is_leap_month: true` and a `闰` prefix, e.g.
+`2023-03-22` → `二〇二三年闰二月初一`.
+
+The sexagenary year is derived from the lunar year (anchored at
+`1984 = 甲子`), not from the LiChun year-pillar boundary.
+
+Solar years outside `1..=9999` after conversion to Shanghai return
+`isError: true`.
+
 ## Encoding
 
 ### url_encode

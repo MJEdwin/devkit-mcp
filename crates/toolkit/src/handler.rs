@@ -48,6 +48,7 @@ impl ServerHandler for ToolkitHandler {
             ToolkitTools::CurrentTimeTool(tool) => tool.call_tool()?,
             ToolkitTools::UnixToIso8601Tool(tool) => tool.call_tool()?,
             ToolkitTools::Iso8601ToUnixTool(tool) => tool.call_tool()?,
+            ToolkitTools::ShanghaiLunarDateTool(tool) => tool.call_tool()?,
             ToolkitTools::UrlEncodeTool(tool) => tool.call_tool()?,
             ToolkitTools::UrlDecodeTool(tool) => tool.call_tool()?,
             ToolkitTools::BinaryToHexTool(tool) => tool.call_tool()?,

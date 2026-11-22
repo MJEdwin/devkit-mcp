@@ -130,6 +130,7 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 | `current_time` | Current UTC time in ISO 8601 |
 | `unix_to_iso8601` | Unix timestamp → ISO 8601 UTC |
 | `iso8601_to_unix` | ISO 8601 datetime (offset required) → Unix timestamp |
+| `shanghai_lunar_date` | Time → Asia/Shanghai time, lunar date, and sexagenary year |
 
 ### Encoding
 
