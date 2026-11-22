@@ -204,6 +204,11 @@ Each archive contains the `devkit-mcp` binary plus `README.md` and `LICENSE`.
 run manually (`workflow_dispatch`) to build artifacts without creating a
 release.
 
+Before building, the workflow rewrites the `[workspace.package]` version to the
+tag version (for manual runs: `0.0.0-<sha>`) and refreshes `Cargo.lock`, so the
+binary reports the same version as the release tag. The repository itself is
+never modified.
+
 ## Build scripts
 
 ```bash

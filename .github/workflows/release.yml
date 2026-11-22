@@ -51,14 +51,6 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      - name: Cache cargo registry and build artifacts
-        uses: Swatinem/rust-cache@v2
-        with:
-          key: ${{ matrix.target }}
-
-      - name: Build release binary
-        run: cargo build --release --locked -p cli --target ${{ matrix.target }}
-
       - name: Resolve version
         id: version
         shell: bash
@@ -71,6 +63,35 @@ jobs:
           # A tag may contain '/', which is not valid in an archive path.
           version="${version//\//-}"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Sync workspace version with tag
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          # Rewrite only the [workspace.package] version; leave every other
+          # `version` key (dependencies) untouched.
+          awk -v ver="$VERSION" '
+            /^\[workspace\.package\]/ { in_pkg = 1 }
+            in_pkg && /^version[[:space:]]*=/ {
+              sub(/version[[:space:]]*=.*/, "version = \"" ver "\"")
+              in_pkg = 0
+            }
+            { print }
+          ' Cargo.toml > Cargo.toml.tmp
+          mv Cargo.toml.tmp Cargo.toml
+          # Keep Cargo.lock in sync so `cargo build --locked` still works.
+          cargo update --workspace
+          grep -A1 '^\[workspace\.package\]' Cargo.toml
+
+      - name: Cache cargo registry and build artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Build release binary
+        run: cargo build --release --locked -p cli --target ${{ matrix.target }}
 
       - name: Package (unix)
         if: runner.os != 'Windows'
