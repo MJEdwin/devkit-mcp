@@ -115,8 +115,6 @@ impl SolarToLunarDateTool {
             "lunar_year_ganzhi".to_string(),
             Value::String(lunar_year_ganzhi),
         );
-        structured.insert("lunar_year_stem".to_string(), Value::String(stem_name));
-        structured.insert("lunar_year_branch".to_string(), Value::String(branch_name));
         structured.insert("zodiac".to_string(), Value::String(zodiac));
 
         let text =
@@ -172,14 +170,6 @@ impl SolarToLunarDateTool {
                     "type": "string",
                     "description": "Sexagenary (天干地支) name of the lunar year, e.g. 甲辰."
                 },
-                "lunar_year_stem": {
-                    "type": "string",
-                    "description": "Heavenly Stem (天干) of the lunar year, e.g. 甲."
-                },
-                "lunar_year_branch": {
-                    "type": "string",
-                    "description": "Earthly Branch (地支) of the lunar year, e.g. 辰."
-                },
                 "zodiac": {
                     "type": "string",
                     "description": "Chinese zodiac animal for the lunar year, e.g. 龙."
@@ -195,8 +185,6 @@ impl SolarToLunarDateTool {
                 "lunar_day_name",
                 "lunar_date",
                 "lunar_year_ganzhi",
-                "lunar_year_stem",
-                "lunar_year_branch",
                 "zodiac"
             ]
         }))

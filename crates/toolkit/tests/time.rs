@@ -92,8 +92,6 @@ fn solar_to_lunar_date_spring_festival() {
     assert_eq!(value["lunar_day_name"].as_str(), Some("初一"));
     assert_eq!(value["lunar_date"].as_str(), Some("二〇二四年正月初一"));
     assert_eq!(value["lunar_year_ganzhi"].as_str(), Some("甲辰"));
-    assert_eq!(value["lunar_year_stem"].as_str(), Some("甲"));
-    assert_eq!(value["lunar_year_branch"].as_str(), Some("辰"));
     assert_eq!(value["zodiac"].as_str(), Some("龙"));
 
     let pretty = serde_json::to_string_pretty(value).expect("serialize");
@@ -119,8 +117,6 @@ fn solar_to_lunar_date_leap_month() {
     assert_eq!(value["lunar_month_name"].as_str(), Some("闰二月"));
     assert_eq!(value["lunar_date"].as_str(), Some("二〇二三年闰二月初一"));
     assert_eq!(value["lunar_year_ganzhi"].as_str(), Some("癸卯"));
-    assert_eq!(value["lunar_year_stem"].as_str(), Some("癸"));
-    assert_eq!(value["lunar_year_branch"].as_str(), Some("卯"));
     assert_eq!(value["zodiac"].as_str(), Some("兔"));
 }
 

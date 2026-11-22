@@ -117,8 +117,6 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 | `lunar_day_name` | string | 中文日期名（`初一` … `三十`） |
 | `lunar_date` | string | 完整中文日期，例如 `二〇二四年正月初一` |
 | `lunar_year_ganzhi` | string | 干支纪年，例如 `甲辰` |
-| `lunar_year_stem` | string | 天干，例如 `甲` |
-| `lunar_year_branch` | string | 地支，例如 `辰` |
 | `zodiac` | string | 农历年生肖，例如 `龙` |
 
 示例：`2024-02-10` 是 2024 年农历正月初一：
@@ -134,8 +132,6 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
   "lunar_day_name": "初一",
   "lunar_date": "二〇二四年正月初一",
   "lunar_year_ganzhi": "甲辰",
-  "lunar_year_stem": "甲",
-  "lunar_year_branch": "辰",
   "zodiac": "龙"
 }
 ```
