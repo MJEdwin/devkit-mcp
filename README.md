@@ -195,8 +195,8 @@ binaries and attaches them to the GitHub Release:
 | Windows | x86_64 |
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.0.1
+git push origin v0.0.1
 ```
 
 Each archive contains the `devkit-mcp` binary plus `README.md` and `LICENSE`.
