@@ -117,6 +117,7 @@ Fields:
 | `lunar_year_ganzhi` | string | Sexagenary year (天干地支), e.g. `甲辰` |
 | `lunar_year_stem` | string | Heavenly Stem (天干), e.g. `甲` |
 | `lunar_year_branch` | string | Earthly Branch (地支), e.g. `辰` |
+| `zodiac` | string | Chinese zodiac animal for the lunar year, e.g. `龙` |
 
 Example: `2024-02-09T16:00:00Z` is `2024-02-10T00:00:00+08:00` in Shanghai,
 the first day of the 2024 lunar year:
@@ -133,7 +134,8 @@ the first day of the 2024 lunar year:
   "lunar_date": "二〇二四年正月初一",
   "lunar_year_ganzhi": "甲辰",
   "lunar_year_stem": "甲",
-  "lunar_year_branch": "辰"
+  "lunar_year_branch": "辰",
+  "zodiac": "龙"
 }
 ```
 
@@ -141,7 +143,8 @@ Leap months are reported with `is_leap_month: true` and a `闰` prefix, e.g.
 `2023-03-22` → `二〇二三年闰二月初一`.
 
 The sexagenary year is derived from the lunar year (anchored at
-`1984 = 甲子`), not from the LiChun year-pillar boundary.
+`1984 = 甲子`), not from the LiChun year-pillar boundary. The zodiac is
+likewise based on the lunar year.
 
 Solar years outside `1..=9999` after conversion to Shanghai return
 `isError: true`.

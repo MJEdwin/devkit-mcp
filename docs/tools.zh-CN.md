@@ -117,6 +117,7 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 | `lunar_year_ganzhi` | string | 干支纪年，例如 `甲辰` |
 | `lunar_year_stem` | string | 天干，例如 `甲` |
 | `lunar_year_branch` | string | 地支，例如 `辰` |
+| `zodiac` | string | 农历年生肖，例如 `龙` |
 
 示例：`2024-02-09T16:00:00Z` 对应上海时间
 `2024-02-10T00:00:00+08:00`，是 2024 年农历正月初一：
@@ -133,7 +134,8 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
   "lunar_date": "二〇二四年正月初一",
   "lunar_year_ganzhi": "甲辰",
   "lunar_year_stem": "甲",
-  "lunar_year_branch": "辰"
+  "lunar_year_branch": "辰",
+  "zodiac": "龙"
 }
 ```
 
@@ -141,6 +143,7 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 `2023-03-22` → `二〇二三年闰二月初一`。
 
 干支纪年按农历年计算（以 `1984 = 甲子` 为基准），不采用立春换年规则。
+生肖同样按农历年计算。
 
 转换为上海时间后公历年超出 `1..=9999` 时返回 `isError: true`。
 

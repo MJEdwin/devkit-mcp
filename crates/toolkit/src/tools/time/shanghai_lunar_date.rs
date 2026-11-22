@@ -28,11 +28,15 @@ const EARTHLY_BRANCH_NAMES: [&str; 12] = [
     "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥",
 ];
 
+const ZODIAC_NAMES: [&str; 12] = [
+    "鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪",
+];
+
 /// Converts a time to China Standard Time and returns its Chinese lunar date.
 #[mcp_tool(
     name = "shanghai_lunar_date",
     title = "Shanghai Time to Lunar Date",
-    description = "Converts an RFC 3339 datetime to China Standard Time (Asia/Shanghai, UTC+8) and returns the Chinese lunar year, month, day, and sexagenary (Heavenly Stem / Earthly Branch) year for that local date."
+    description = "Converts an RFC 3339 datetime to China Standard Time (Asia/Shanghai, UTC+8) and returns the Chinese lunar year, month, day, sexagenary (Heavenly Stem / Earthly Branch) year, and Chinese zodiac for that local date."
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct ShanghaiLunarDateTool {
@@ -70,6 +74,7 @@ impl ShanghaiLunarDateTool {
         let stem_name = HEAVENLY_STEM_NAMES[stem_branch.stem().index()].to_string();
         let branch_name = EARTHLY_BRANCH_NAMES[stem_branch.branch().index()].to_string();
         let lunar_year_ganzhi = format!("{stem_name}{branch_name}");
+        let zodiac = ZODIAC_NAMES[stem_branch.branch().index()].to_string();
 
         let mut structured = Map::new();
         structured.insert(
@@ -104,6 +109,7 @@ impl ShanghaiLunarDateTool {
         );
         structured.insert("lunar_year_stem".to_string(), Value::String(stem_name));
         structured.insert("lunar_year_branch".to_string(), Value::String(branch_name));
+        structured.insert("zodiac".to_string(), Value::String(zodiac));
 
         let text =
             serde_json::to_string_pretty(&Value::Object(structured.clone())).map_err(|err| {
@@ -165,6 +171,10 @@ impl ShanghaiLunarDateTool {
                 "lunar_year_branch": {
                     "type": "string",
                     "description": "Earthly Branch (地支) of the lunar year, e.g. 辰."
+                },
+                "zodiac": {
+                    "type": "string",
+                    "description": "Chinese zodiac animal for the lunar year, e.g. 龙."
                 }
             },
             "required": [
@@ -178,7 +188,8 @@ impl ShanghaiLunarDateTool {
                 "lunar_date",
                 "lunar_year_ganzhi",
                 "lunar_year_stem",
-                "lunar_year_branch"
+                "lunar_year_branch",
+                "zodiac"
             ]
         }))
     }

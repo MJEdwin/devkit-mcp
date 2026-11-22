@@ -95,6 +95,7 @@ fn shanghai_lunar_date_spring_festival() {
     assert_eq!(value["lunar_year_ganzhi"].as_str(), Some("甲辰"));
     assert_eq!(value["lunar_year_stem"].as_str(), Some("甲"));
     assert_eq!(value["lunar_year_branch"].as_str(), Some("辰"));
+    assert_eq!(value["zodiac"].as_str(), Some("龙"));
 
     let pretty = serde_json::to_string_pretty(value).expect("serialize");
     assert_eq!(text(&result), pretty);
@@ -122,6 +123,7 @@ fn shanghai_lunar_date_leap_month() {
     assert_eq!(value["lunar_year_ganzhi"].as_str(), Some("癸卯"));
     assert_eq!(value["lunar_year_stem"].as_str(), Some("癸"));
     assert_eq!(value["lunar_year_branch"].as_str(), Some("卯"));
+    assert_eq!(value["zodiac"].as_str(), Some("兔"));
 }
 
 #[test]
@@ -143,6 +145,7 @@ fn shanghai_lunar_date_timezone_boundary() {
     assert_eq!(value["lunar_day"].as_u64(), Some(30));
     assert_eq!(value["lunar_date"].as_str(), Some("二〇二三年腊月三十"));
     assert_eq!(value["lunar_year_ganzhi"].as_str(), Some("癸卯"));
+    assert_eq!(value["zodiac"].as_str(), Some("兔"));
 }
 
 #[test]
