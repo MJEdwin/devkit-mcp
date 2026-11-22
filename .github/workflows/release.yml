@@ -101,10 +101,11 @@ jobs:
         run: |
           set -euo pipefail
           name="devkit-mcp-${VERSION}-${{ matrix.target }}"
-          mkdir -p "dist/${name}"
-          cp "target/${{ matrix.target }}/release/devkit-mcp" "dist/${name}/"
-          cp README.md LICENSE "dist/${name}/"
-          tar -C dist -czf "dist/${name}.tar.gz" "${name}"
+          staging="staging/${name}"
+          mkdir -p "$staging" out
+          cp "target/${{ matrix.target }}/release/devkit-mcp" "$staging/"
+          cp README.md LICENSE "$staging/"
+          tar -C staging -czf "out/${name}.tar.gz" "${name}"
 
       - name: Package (windows)
         if: runner.os == 'Windows'
@@ -113,16 +114,17 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           $name = "devkit-mcp-$env:VERSION-${{ matrix.target }}"
-          New-Item -ItemType Directory -Force -Path "dist/$name" | Out-Null
-          Copy-Item "target/${{ matrix.target }}/release/devkit-mcp.exe" "dist/$name/"
-          Copy-Item README.md, LICENSE "dist/$name/"
-          Compress-Archive -Path "dist/$name" -DestinationPath "dist/$name.zip"
+          $staging = "staging/$name"
+          New-Item -ItemType Directory -Force -Path $staging, "out" | Out-Null
+          Copy-Item "target/${{ matrix.target }}/release/devkit-mcp.exe" "$staging/"
+          Copy-Item README.md, LICENSE "$staging/"
+          Compress-Archive -Path $staging -DestinationPath "out/$name.zip"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: devkit-mcp-${{ matrix.target }}
-          path: dist/*
+          path: out/*
           if-no-files-found: error
 
   release:
