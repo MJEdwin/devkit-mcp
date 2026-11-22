@@ -1,6 +1,6 @@
 //! MCP tools grouped by category:
 //!
-//! - `time`     — current time, timestamp, and lunar date conversion
+//! - `time`     — current time, timestamp, and lunar/solar date conversion
 //! - `encoding` — URL and binary/text encodings
 //! - `digest`   — hash and HMAC
 //! - `symmetric` — AES / DES encryption/decryption
@@ -39,7 +39,8 @@ tool_box!(
         CurrentTimeTool,
         UnixToIso8601Tool,
         Iso8601ToUnixTool,
-        ShanghaiLunarDateTool,
+        SolarToLunarDateTool,
+        LunarToSolarDateTool,
         UrlEncodeTool,
         UrlDecodeTool,
         BinaryToHexTool,
@@ -105,5 +106,6 @@ type OutputSchemaProvider = fn(&str) -> Option<ToolOutputSchema>;
 const OUTPUT_SCHEMA_PROVIDERS: &[OutputSchemaProvider] = &[
     rsa::generate_key_output_schema,
     rsa::key_components_output_schema,
-    time::shanghai_lunar_date_output_schema,
+    time::solar_to_lunar_date_output_schema,
+    time::lunar_to_solar_date_output_schema,
 ];

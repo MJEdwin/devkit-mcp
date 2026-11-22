@@ -88,16 +88,18 @@ date-only strings.
 
 ---
 
-### shanghai_lunar_date
+### solar_to_lunar_date
 
-Convert a time to China Standard Time and return the Chinese lunar date.
+Convert a Gregorian (solar) date to the Chinese lunar date.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `datetime` | string (`format: date-time`) | yes | RFC 3339 datetime **with a timezone offset** |
+| `solar_year` | integer (`1`–`9999`) | yes | Gregorian year |
+| `solar_month` | integer (`1`–`12`) | yes | Gregorian month |
+| `solar_day` | integer (`1`–`31`) | yes | Gregorian day |
 
-The input is converted to Asia/Shanghai (UTC+8, no DST), and the lunar date is
-computed for that Shanghai calendar date. Supported solar years: `1..=9999`.
+The input must be a real Gregorian date (e.g. `2023-02-29` is rejected). The
+lunar date, sexagenary year, and zodiac are computed for that date.
 
 The result is returned both as pretty-printed JSON text and as
 `structuredContent`; the tool also declares an `outputSchema` in `tools/list`.
@@ -106,7 +108,7 @@ Fields:
 
 | Field | Type | Meaning |
 |---|---|---|
-| `shanghai_time` | string | Input time in Asia/Shanghai, RFC 3339 with `+08:00` |
+| `solar_date` | string | Input Gregorian date, `YYYY-MM-DD` |
 | `lunar_year` | integer | Chinese lunar year |
 | `lunar_month` | integer | Lunar month (`1`–`12`) |
 | `lunar_day` | integer | Lunar day (`1`–`30`) |
@@ -119,12 +121,11 @@ Fields:
 | `lunar_year_branch` | string | Earthly Branch (地支), e.g. `辰` |
 | `zodiac` | string | Chinese zodiac animal for the lunar year, e.g. `龙` |
 
-Example: `2024-02-09T16:00:00Z` is `2024-02-10T00:00:00+08:00` in Shanghai,
-the first day of the 2024 lunar year:
+Example: `2024-02-10` is the first day of the 2024 lunar year:
 
 ```json
 {
-  "shanghai_time": "2024-02-10T00:00:00+08:00",
+  "solar_date": "2024-02-10",
   "lunar_year": 2024,
   "lunar_month": 1,
   "lunar_day": 1,
@@ -146,8 +147,43 @@ The sexagenary year is derived from the lunar year (anchored at
 `1984 = 甲子`), not from the LiChun year-pillar boundary. The zodiac is
 likewise based on the lunar year.
 
-Solar years outside `1..=9999` after conversion to Shanghai return
-`isError: true`.
+Gregorian years outside `1..=9999` return `isError: true`.
+
+---
+
+### lunar_to_solar_date
+
+Convert a Chinese lunar date to the corresponding Gregorian date.
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `lunar_year` | integer (`1`–`9999`) | yes | — | Chinese lunar year |
+| `lunar_month` | integer (`1`–`12`) | yes | — | Lunar month |
+| `lunar_day` | integer (`1`–`30`) | yes | — | Lunar day |
+| `is_leap_month` | boolean | no | `false` | Whether the month is a leap month |
+
+The date is validated exactly as supplied. An out-of-range year/month/day, a
+day longer than the actual lunar month, or a leap-month flag for a month that
+has no leap instance that year returns `isError: true`.
+
+The result is returned both as pretty-printed JSON text and as
+`structuredContent`; the tool also declares an `outputSchema` in `tools/list`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `solar_date` | string | Gregorian date, `YYYY-MM-DD` |
+| `lunar_date` | string | Lunar date in Chinese, e.g. `二〇二三年闰二月初一` |
+
+Example: lunar `2024-01-01` (not leap) is `2024-02-10`:
+
+```json
+{
+  "solar_date": "2024-02-10",
+  "lunar_date": "二〇二四年正月初一"
+}
+```
+
+Leap-month example: year `2023`, leap month `2`, day `1` → `2023-03-22`.
 
 ## Encoding
 

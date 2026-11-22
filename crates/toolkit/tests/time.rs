@@ -2,8 +2,8 @@ mod common;
 
 use common::{structured, text};
 use toolkit::{
-    CurrentTimeTool, Iso8601ToUnixTool, ShanghaiLunarDateTool, TimestampUnit, UnixToIso8601Tool,
-    UtcDateTime,
+    CurrentTimeTool, Iso8601ToUnixTool, LunarToSolarDateTool, SolarToLunarDateTool, TimestampUnit,
+    UnixToIso8601Tool, UtcDateTime,
 };
 
 #[test]
@@ -73,18 +73,17 @@ fn iso8601_to_unix_milliseconds() {
 }
 
 #[test]
-fn shanghai_lunar_date_spring_festival() {
-    let result = ShanghaiLunarDateTool {
-        datetime: "2024-02-09T16:00:00Z".parse().expect("valid datetime"),
+fn solar_to_lunar_date_spring_festival() {
+    let result = SolarToLunarDateTool {
+        solar_year: 2024,
+        solar_month: 2,
+        solar_day: 10,
     }
     .call_tool()
-    .expect("shanghai_lunar_date");
+    .expect("solar_to_lunar_date");
 
     let value = structured(&result);
-    assert_eq!(
-        value["shanghai_time"].as_str(),
-        Some("2024-02-10T00:00:00+08:00")
-    );
+    assert_eq!(value["solar_date"].as_str(), Some("2024-02-10"));
     assert_eq!(value["lunar_year"].as_i64(), Some(2024));
     assert_eq!(value["lunar_month"].as_u64(), Some(1));
     assert_eq!(value["lunar_day"].as_u64(), Some(1));
@@ -102,18 +101,17 @@ fn shanghai_lunar_date_spring_festival() {
 }
 
 #[test]
-fn shanghai_lunar_date_leap_month() {
-    let result = ShanghaiLunarDateTool {
-        datetime: "2023-03-22T12:00:00+08:00".parse().expect("valid datetime"),
+fn solar_to_lunar_date_leap_month() {
+    let result = SolarToLunarDateTool {
+        solar_year: 2023,
+        solar_month: 3,
+        solar_day: 22,
     }
     .call_tool()
-    .expect("shanghai_lunar_date");
+    .expect("solar_to_lunar_date");
 
     let value = structured(&result);
-    assert_eq!(
-        value["shanghai_time"].as_str(),
-        Some("2023-03-22T12:00:00+08:00")
-    );
+    assert_eq!(value["solar_date"].as_str(), Some("2023-03-22"));
     assert_eq!(value["lunar_year"].as_i64(), Some(2023));
     assert_eq!(value["lunar_month"].as_u64(), Some(2));
     assert_eq!(value["lunar_day"].as_u64(), Some(1));
@@ -127,35 +125,153 @@ fn shanghai_lunar_date_leap_month() {
 }
 
 #[test]
-fn shanghai_lunar_date_timezone_boundary() {
-    // 2024-02-09T15:59:59Z is 2024-02-09 23:59:59 in Shanghai (除夕).
-    let result = ShanghaiLunarDateTool {
-        datetime: "2024-02-09T15:59:59Z".parse().expect("valid datetime"),
+fn solar_to_lunar_date_accepts_gregorian_leap_day() {
+    let result = SolarToLunarDateTool {
+        solar_year: 2024,
+        solar_month: 2,
+        solar_day: 29,
     }
     .call_tool()
-    .expect("shanghai_lunar_date");
+    .expect("solar_to_lunar_date");
 
     let value = structured(&result);
-    assert_eq!(
-        value["shanghai_time"].as_str(),
-        Some("2024-02-09T23:59:59+08:00")
-    );
-    assert_eq!(value["lunar_year"].as_i64(), Some(2023));
-    assert_eq!(value["lunar_month"].as_u64(), Some(12));
-    assert_eq!(value["lunar_day"].as_u64(), Some(30));
-    assert_eq!(value["lunar_date"].as_str(), Some("二〇二三年腊月三十"));
-    assert_eq!(value["lunar_year_ganzhi"].as_str(), Some("癸卯"));
-    assert_eq!(value["zodiac"].as_str(), Some("兔"));
+    assert_eq!(value["solar_date"].as_str(), Some("2024-02-29"));
+    assert_eq!(value["lunar_year"].as_i64(), Some(2024));
+    assert_eq!(value["lunar_month"].as_u64(), Some(1));
+    assert_eq!(value["lunar_day"].as_u64(), Some(20));
+    assert_eq!(value["lunar_date"].as_str(), Some("二〇二四年正月二十"));
 }
 
 #[test]
-fn shanghai_lunar_date_out_of_range() {
-    let result = ShanghaiLunarDateTool {
-        datetime: "9999-12-31T20:00:00Z".parse().expect("valid datetime"),
+fn solar_to_lunar_date_rejects_invalid_gregorian_date() {
+    // 2023 is not a leap year.
+    assert!(
+        SolarToLunarDateTool {
+            solar_year: 2023,
+            solar_month: 2,
+            solar_day: 29,
+        }
+        .call_tool()
+        .is_err()
+    );
+
+    // April has 30 days.
+    assert!(
+        SolarToLunarDateTool {
+            solar_year: 2024,
+            solar_month: 4,
+            solar_day: 31,
+        }
+        .call_tool()
+        .is_err()
+    );
+
+    // Month is out of range.
+    assert!(
+        SolarToLunarDateTool {
+            solar_year: 2024,
+            solar_month: 13,
+            solar_day: 1,
+        }
+        .call_tool()
+        .is_err()
+    );
+}
+
+#[test]
+fn solar_to_lunar_date_out_of_range() {
+    let result = SolarToLunarDateTool {
+        solar_year: 10_000,
+        solar_month: 12,
+        solar_day: 31,
     }
     .call_tool();
 
     assert!(result.is_err());
+}
+
+#[test]
+fn lunar_to_solar_date_spring_festival() {
+    let result = LunarToSolarDateTool {
+        lunar_year: 2024,
+        lunar_month: 1,
+        lunar_day: 1,
+        is_leap_month: None,
+    }
+    .call_tool()
+    .expect("lunar_to_solar_date");
+
+    let value = structured(&result);
+    assert_eq!(value["solar_date"].as_str(), Some("2024-02-10"));
+    assert_eq!(value["lunar_date"].as_str(), Some("二〇二四年正月初一"));
+
+    let pretty = serde_json::to_string_pretty(value).expect("serialize");
+    assert_eq!(text(&result), pretty);
+}
+
+#[test]
+fn lunar_to_solar_date_leap_month() {
+    let result = LunarToSolarDateTool {
+        lunar_year: 2023,
+        lunar_month: 2,
+        lunar_day: 1,
+        is_leap_month: Some(true),
+    }
+    .call_tool()
+    .expect("lunar_to_solar_date");
+
+    let value = structured(&result);
+    assert_eq!(value["solar_date"].as_str(), Some("2023-03-22"));
+    assert_eq!(value["lunar_date"].as_str(), Some("二〇二三年闰二月初一"));
+}
+
+#[test]
+fn lunar_to_solar_date_rejects_invalid_input() {
+    // 2024 has no leap second month.
+    assert!(
+        LunarToSolarDateTool {
+            lunar_year: 2024,
+            lunar_month: 2,
+            lunar_day: 1,
+            is_leap_month: Some(true),
+        }
+        .call_tool()
+        .is_err()
+    );
+
+    // Lunar months never have 31 days.
+    assert!(
+        LunarToSolarDateTool {
+            lunar_year: 2024,
+            lunar_month: 1,
+            lunar_day: 31,
+            is_leap_month: None,
+        }
+        .call_tool()
+        .is_err()
+    );
+
+    // Month and year must be in range.
+    assert!(
+        LunarToSolarDateTool {
+            lunar_year: 2024,
+            lunar_month: 13,
+            lunar_day: 1,
+            is_leap_month: None,
+        }
+        .call_tool()
+        .is_err()
+    );
+    assert!(
+        LunarToSolarDateTool {
+            lunar_year: 0,
+            lunar_month: 1,
+            lunar_day: 1,
+            is_leap_month: None,
+        }
+        .call_tool()
+        .is_err()
+    );
 }
 
 #[test]

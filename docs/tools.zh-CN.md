@@ -88,16 +88,18 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 
 ---
 
-### shanghai_lunar_date
+### solar_to_lunar_date
 
-把时间转换为中国标准时间（上海时间），并返回对应的农历日期。
+把阳历（公历）日期转换为对应的农历日期。
 
 | 参数 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| `datetime` | string (`format: date-time`) | 是 | RFC 3339 日期时间，**必须带时区偏移** |
+| `solar_year` | integer (`1`–`9999`) | 是 | 阳历年 |
+| `solar_month` | integer (`1`–`12`) | 是 | 阳历月 |
+| `solar_day` | integer (`1`–`31`) | 是 | 阳历日 |
 
-输入会先转换为 Asia/Shanghai（UTC+8，无夏令时），再按该上海日历日期计算
-农历。支持的公历年范围：`1..=9999`。
+输入必须是真实存在的阳历日期（例如 `2023-02-29` 会被拒绝）。工具会计算该
+日期对应的农历日期、干支纪年和生肖。
 
 结果会同时以美化后的 JSON 文本和 `structuredContent` 返回；该工具还会在
 `tools/list` 中声明 `outputSchema`。
@@ -106,7 +108,7 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 
 | 字段 | 类型 | 含义 |
 |---|---|---|
-| `shanghai_time` | string | 输入时间对应的上海时间，RFC 3339，偏移为 `+08:00` |
+| `solar_date` | string | 输入的阳历日期，格式 `YYYY-MM-DD` |
 | `lunar_year` | integer | 农历年 |
 | `lunar_month` | integer | 农历月（`1`–`12`） |
 | `lunar_day` | integer | 农历日（`1`–`30`） |
@@ -119,12 +121,11 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 | `lunar_year_branch` | string | 地支，例如 `辰` |
 | `zodiac` | string | 农历年生肖，例如 `龙` |
 
-示例：`2024-02-09T16:00:00Z` 对应上海时间
-`2024-02-10T00:00:00+08:00`，是 2024 年农历正月初一：
+示例：`2024-02-10` 是 2024 年农历正月初一：
 
 ```json
 {
-  "shanghai_time": "2024-02-10T00:00:00+08:00",
+  "solar_date": "2024-02-10",
   "lunar_year": 2024,
   "lunar_month": 1,
   "lunar_day": 1,
@@ -145,7 +146,43 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 干支纪年按农历年计算（以 `1984 = 甲子` 为基准），不采用立春换年规则。
 生肖同样按农历年计算。
 
-转换为上海时间后公历年超出 `1..=9999` 时返回 `isError: true`。
+阳历年超出 `1..=9999` 时返回 `isError: true`。
+
+---
+
+### lunar_to_solar_date
+
+把农历日期转换为对应的阳历（公历）日期。
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|---|---|---|---|---|
+| `lunar_year` | integer (`1`–`9999`) | 是 | — | 农历年 |
+| `lunar_month` | integer (`1`–`12`) | 是 | — | 农历月 |
+| `lunar_day` | integer (`1`–`30`) | 是 | — | 农历日 |
+| `is_leap_month` | boolean | 否 | `false` | 是否为闰月 |
+
+日期会按传入值严格校验。年/月/日超出范围、日期超过该农历月的实际天数，
+或对当年没有闰月的月份设置 `is_leap_month: true`，都会返回
+`isError: true`。
+
+结果会同时以美化后的 JSON 文本和 `structuredContent` 返回；该工具还会在
+`tools/list` 中声明 `outputSchema`。
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `solar_date` | string | 阳历日期，格式 `YYYY-MM-DD` |
+| `lunar_date` | string | 中文农历日期，例如 `二〇二三年闰二月初一` |
+
+示例：农历 `2024-01-01`（非闰月）对应 `2024-02-10`：
+
+```json
+{
+  "solar_date": "2024-02-10",
+  "lunar_date": "二〇二四年正月初一"
+}
+```
+
+闰月示例：2023 年闰二月第一天 → `2023-03-22`。
 
 ## 编码（Encoding）
 
