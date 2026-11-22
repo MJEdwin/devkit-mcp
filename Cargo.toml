@@ -1,0 +1,58 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+
+[workspace.dependencies]
+# MCP framework (shared by the library and both servers)
+rust-mcp-sdk = { version = "2.0.0", default-features = false, features = ["macros", "server"] }
+rust-mcp-axum = "2.0.0"
+
+aes = "0.9"
+aes-gcm = "0.11"
+async-trait = "0.1"
+base64 = "0.22"
+block-buffer = "0.12"
+cbc = { version = "0.2", features = ["alloc"] }
+cfb-mode = "0.9"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+clap = { version = "4", features = ["derive", "env"] }
+ctr = "0.10"
+des = "0.9"
+ecb = { version = "0.2", features = ["alloc"] }
+encoding_rs = "0.8"
+getrandom = { version = "0.4", features = ["sys_rng"] }
+hex-simd = "0.8"
+hmac = "0.12"
+http = "1"
+md-5 = "0.10"
+ofb = "0.7"
+percent-encoding = "2"
+rsa = { version = "0.10", features = ["pkcs1v15", "hazmat"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha1 = "0.10"
+sha2 = "0.10"
+subtle = "2"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1", features = ["v4", "v7"] }
+
+# Internal crates
+toolkit = { path = "crates/toolkit" }
+
+# RSA key generation is very slow in unoptimized builds; optimize the
+# crypto dependencies even in dev profile.
+[profile.dev.package.rsa]
+opt-level = 3
+
+[profile.dev.package.crypto-bigint]
+opt-level = 3
+
+[profile.dev.package.crypto-primes]
+opt-level = 3

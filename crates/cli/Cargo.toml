@@ -1,0 +1,23 @@
+[package]
+name = "cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "devkit-mcp"
+path = "src/main.rs"
+
+[dependencies]
+async-trait.workspace = true
+clap.workspace = true
+http.workspace = true
+rust-mcp-axum.workspace = true
+rust-mcp-sdk = { workspace = true, features = ["auth", "stdio"] }
+serde.workspace = true
+serde_json.workspace = true
+subtle.workspace = true
+tokio.workspace = true
+toolkit.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true

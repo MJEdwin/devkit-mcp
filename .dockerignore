@@ -1,0 +1,7 @@
+target/
+.git/
+.idea/
+docs/
+scripts/
+README.md
+AGENTS.md

@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  checks:
+    name: AGENTS.md checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry and build artifacts
+        uses: Swatinem/rust-cache@v2
+
+      # AGENTS.md → Common commands: cargo fmt --all
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+      # AGENTS.md → Common commands: cargo check --workspace
+      - name: Cargo check
+        run: cargo check --workspace
+
+      # AGENTS.md → Linting: clippy with zero warnings
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      # AGENTS.md → Testing: cargo test --workspace
+      - name: Tests
+        run: cargo test --workspace
+
+      # AGENTS.md → Common commands: cargo build
+      - name: Build
+        run: cargo build
+
+      # AGENTS.md → Linting: quick stdio smoke test
+      - name: Stdio smoke test (tools/list)
+        run: |
+          output="$(
+            printf '%s\n' \
+              '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{"_meta":{"io.modelcontextprotocol/clientCapabilities":{},"io.modelcontextprotocol/protocolVersion":"2026-07-28"}}}' \
+              | ./target/debug/devkit-mcp local
+          )"
+          printf '%s\n' "$output"
+          grep -q '"tools"' <<<"$output"
+          grep -q '"name":"generate_uuid"' <<<"$output"
