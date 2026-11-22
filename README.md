@@ -183,6 +183,27 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 
 Full parameter tables and examples: [`docs/tools.md`](docs/tools.md).
 
+## Prebuilt binaries
+
+Pushing a `v*` tag runs the **Release** workflow, which builds release
+binaries and attaches them to the GitHub Release:
+
+| Platform | Architecture |
+|---|---|
+| Linux | x86_64, arm64 |
+| macOS | arm64, x86_64 |
+| Windows | x86_64 |
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Each archive contains the `devkit-mcp` binary plus `README.md` and `LICENSE`.
+`SHA256SUMS.txt` is published alongside the archives. The workflow can also be
+run manually (`workflow_dispatch`) to build artifacts without creating a
+release.
+
 ## Build scripts
 
 ```bash
