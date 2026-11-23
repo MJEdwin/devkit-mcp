@@ -67,6 +67,7 @@ impl ServerHandler for ToolkitHandler {
             ToolkitTools::ChangeCaseTool(tool) => tool.call_tool()?,
             ToolkitTools::NamingCaseTool(tool) => tool.call_tool()?,
             ToolkitTools::JwtDecodeTool(tool) => tool.call_tool()?,
+            ToolkitTools::CidrNetworkTool(tool) => tool.call_tool()?,
             ToolkitTools::RegexMatchTool(tool) => tool.call_tool()?,
             ToolkitTools::RegexReplaceTool(tool) => tool.call_tool()?,
             ToolkitTools::RegexTestTool(tool) => tool.call_tool()?,

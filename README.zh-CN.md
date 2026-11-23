@@ -19,6 +19,7 @@
 │   │           ├── time/
 │   │           ├── cron/
 │   │           ├── encoding/
+│   │           ├── network/
 │   │           ├── regex/
 │   │           ├── json/
 │   │           ├── digest/
@@ -249,6 +250,12 @@ claude mcp list
 | `change_case` | 小写 / 大写 / 标题格式转换 |
 | `naming_case` | PascalCase / camelCase / lower_snake / UPPER_SNAKE 转换 |
 | `jwt_decode` | 解码 JWT，可选校验签名（HMAC/RSA/EC/EdDSA） |
+
+### 网络
+
+| 工具 | 说明 |
+|---|---|
+| `cidr_network` | 根据 IPv4 地址和子网掩码计算网段、广播地址和主机范围 |
 
 ### 正则
 

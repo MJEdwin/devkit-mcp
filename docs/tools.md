@@ -631,6 +631,55 @@ Example:
 }
 ```
 
+## Network
+
+### cidr_network
+
+Calculate the network for an IPv4 address and subnet mask.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `ip` | string | yes | IPv4 address, e.g. `192.168.1.10` |
+| `mask` | string | yes | Dotted mask (`255.255.255.0`) or prefix length (`24` or `/24`) |
+
+The mask must be contiguous. `/31` and `/32` follow RFC 3021 and host-route
+semantics (no network/broadcast subtraction). The result is returned as
+pretty-printed JSON text and `structuredContent`; the tool declares an
+`outputSchema`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `ip` | string | Input address |
+| `mask` | string | Normalized dotted mask |
+| `prefix_length` | integer | CIDR prefix |
+| `network` | string | Network address |
+| `broadcast` | string | Broadcast address |
+| `first_host` | string | First usable host |
+| `last_host` | string | Last usable host |
+| `address_count` | integer | Total addresses |
+| `usable_hosts` | integer | Usable host count |
+| `cidr` | string | `network/prefix` |
+
+Example: `192.168.1.10` + `255.255.255.0` →
+
+```json
+{
+  "ip": "192.168.1.10",
+  "mask": "255.255.255.0",
+  "prefix_length": 24,
+  "network": "192.168.1.0",
+  "broadcast": "192.168.1.255",
+  "first_host": "192.168.1.1",
+  "last_host": "192.168.1.254",
+  "address_count": 256,
+  "usable_hosts": 254,
+  "cidr": "192.168.1.0/24"
+}
+```
+
+Invalid IPv4 addresses, non-contiguous masks, and prefixes outside 0–32 return
+`isError: true`.
+
 ## Regex
 
 ### regex_match

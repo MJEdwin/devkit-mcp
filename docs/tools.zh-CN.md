@@ -623,6 +623,53 @@ issuer、audience 和过期时间只返回，不强制校验。
 }
 ```
 
+## 网络（Network）
+
+### cidr_network
+
+根据 IPv4 地址和子网掩码计算网段信息。
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `ip` | string | 是 | IPv4 地址，例如 `192.168.1.10` |
+| `mask` | string | 是 | 点分掩码（`255.255.255.0`）或前缀长度（`24` / `/24`） |
+
+掩码的二进制位必须连续。`/31` 和 `/32` 按 RFC 3021 和主机路由语义处理
+（不扣除网络地址和广播地址）。结果会同时以美化后的 JSON 文本和
+`structuredContent` 返回，并声明 `outputSchema`。
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `ip` | string | 输入地址 |
+| `mask` | string | 规范化后的点分掩码 |
+| `prefix_length` | integer | CIDR 前缀长度 |
+| `network` | string | 网络地址 |
+| `broadcast` | string | 广播地址 |
+| `first_host` | string | 第一个可用主机 |
+| `last_host` | string | 最后一个可用主机 |
+| `address_count` | integer | 地址总数 |
+| `usable_hosts` | integer | 可用主机数 |
+| `cidr` | string | `network/prefix` |
+
+示例：`192.168.1.10` + `255.255.255.0` →
+
+```json
+{
+  "ip": "192.168.1.10",
+  "mask": "255.255.255.0",
+  "prefix_length": 24,
+  "network": "192.168.1.0",
+  "broadcast": "192.168.1.255",
+  "first_host": "192.168.1.1",
+  "last_host": "192.168.1.254",
+  "address_count": 256,
+  "usable_hosts": 254,
+  "cidr": "192.168.1.0/24"
+}
+```
+
+IPv4 地址非法、掩码位不连续或前缀不在 0–32 时返回 `isError: true`。
+
 ## 正则（Regex）
 
 ### regex_match

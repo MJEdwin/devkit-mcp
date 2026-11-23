@@ -3,6 +3,7 @@
 //! - `time`     — current time, timestamp, and lunar/solar date conversion
 //! - `cron`     — cron expression validation, scheduling, parsing, and generation
 //! - `encoding` — URL, binary/text encodings, case conversion, JWT decoding
+//! - `network`  — IP / CIDR utilities
 //! - `regex`    — regular expression matching and replacement
 //! - `json`     — JSON formatting, querying, and validation
 //! - `digest`   — hash and HMAC
@@ -21,6 +22,7 @@ pub mod digest;
 pub mod encoding;
 pub mod json;
 pub mod misc;
+pub mod network;
 pub mod regex;
 pub mod rsa;
 pub mod symmetric;
@@ -31,6 +33,7 @@ pub use digest::*;
 pub use encoding::*;
 pub use json::*;
 pub use misc::*;
+pub use network::*;
 pub use regex::*;
 pub use rsa::*;
 pub use symmetric::*;
@@ -67,6 +70,7 @@ tool_box!(
         ChangeCaseTool,
         NamingCaseTool,
         JwtDecodeTool,
+        CidrNetworkTool,
         RegexMatchTool,
         RegexReplaceTool,
         RegexTestTool,
@@ -145,6 +149,7 @@ const OUTPUT_SCHEMA_PROVIDERS: &[OutputSchemaProvider] = &[
     json::json_schema_validate_output_schema,
     json::json_query_output_schema,
     encoding::jwt_decode_output_schema,
+    network::cidr_network_output_schema,
     regex::regex_match_output_schema,
     regex::regex_replace_output_schema,
     regex::regex_test_output_schema,

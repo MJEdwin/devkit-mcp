@@ -19,6 +19,7 @@ toolkit over **stdio** and **Streamable HTTP**.
 │   │           ├── time/
 │   │           ├── cron/
 │   │           ├── encoding/
+│   │           ├── network/
 │   │           ├── regex/
 │   │           ├── json/
 │   │           ├── digest/
@@ -251,6 +252,12 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 | `change_case` | Convert text between lowercase, uppercase, and title case |
 | `naming_case` | Convert between PascalCase / camelCase / lower_snake / UPPER_SNAKE |
 | `jwt_decode` | Decode a JWT and optionally verify its signature (HMAC/RSA/EC/EdDSA) |
+
+### Network
+
+| Tool | Description |
+|---|---|
+| `cidr_network` | Calculate network/broadcast/host range from an IPv4 address and mask |
 
 ### Regex
 
