@@ -244,6 +244,188 @@ Example: expression `0 * * * *`, `from: "2026-01-01T00:00:00Z"`, `count: 3`:
 }
 ```
 
+---
+
+### cron_prev
+
+Compute the previous N execution times for a cron expression.
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `expression` | string | yes | — | Cron expression (5–7 fields) |
+| `from` | string (`date-time`) | no | now | RFC 3339 start time; results are strictly before it |
+| `count` | integer (`1`–`50`) | no | `5` | Number of occurrences |
+| `timezone` | string (`±HH:MM` or `Z`) | no | `Z` | Fixed UTC offset |
+
+- Results are returned most recent first.
+- Invalid expressions return `isError: true`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `timezone` | string | Applied UTC offset |
+| `count` | integer | Number of occurrences returned |
+| `times` | array | RFC 3339 timestamps, most recent first |
+
+Example: expression `0 * * * *`, `from: "2026-01-01T03:00:00Z"`, `count: 3` →
+
+```json
+{
+  "timezone": "Z",
+  "count": 3,
+  "times": [
+    "2026-01-01T02:00:00Z",
+    "2026-01-01T01:00:00Z",
+    "2026-01-01T00:00:00Z"
+  ]
+}
+```
+
+---
+
+### cron_generate
+
+Build a cron expression from per-field values.
+
+Each field accepts one of:
+
+- a raw cron string, e.g. `"*/5"`, `"1-5"`, `"1,3,5"`, or `"*"`
+- a number, e.g. `5`
+- a structured term:
+  - `{ "type": "wildcard" }` → `*`
+  - `{ "type": "value", "value": 5 }`
+  - `{ "type": "range", "start": 1, "end": 5 }`
+  - `{ "type": "step", "step": 5 }` → `*/5`
+  - `{ "type": "step", "start": 1, "end": 10, "step": 2 }` → `1-10/2`
+  - `{ "type": "step", "start": 5, "step": 10 }` → `5/10`
+- an array of terms (enumeration), joined with commas, e.g.
+  `[{ "type": "range", "start": 0, "end": 30 }, { "type": "value", "value": 45 }]`
+  → `0-30,45`
+
+Values are numbers only; named values such as `MON` or `JAN` are rejected.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `second` | CronField | no | Seconds field (0–59); include it for a 6- or 7-field expression |
+| `minute` | CronField | yes | Minutes field (0–59) |
+| `hour` | CronField | yes | Hours field (0–23) |
+| `day_of_month` | CronField | yes | Day of month (1–31) |
+| `month` | CronField | yes | Month (1–12) |
+| `day_of_week` | CronField | yes | Day of week (0–7) |
+| `year` | CronField | no | Year field; requires `second` |
+
+The field values are joined in cron order and validated. Empty or
+whitespace-containing fields, malformed terms (`step` of 0, `end` without
+`start`, empty lists), `year` without `second`, and invalid field values return
+`isError: true`.
+
+The result is returned as pretty-printed JSON text and `structuredContent`;
+the tool declares an `outputSchema`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `expression` | string | Generated cron expression |
+| `field_count` | integer | `5`, `6`, or `7` |
+| `description` | string | English description of the schedule |
+
+Example — every 5 minutes using a structured step:
+
+```json
+{
+  "minute": { "type": "step", "step": 5 },
+  "hour": "*",
+  "day_of_month": "*",
+  "month": "*",
+  "day_of_week": "*"
+}
+```
+
+→ `{"expression": "*/5 * * * *", "field_count": 5, "description": "..."}`.
+
+Example — enumeration of a range and a value:
+
+```json
+{
+  "minute": [
+    { "type": "range", "start": 0, "end": 30 },
+    { "type": "value", "value": 45 }
+  ],
+  "hour": "*",
+  "day_of_month": "*",
+  "month": "*",
+  "day_of_week": "*"
+}
+```
+
+→ `0-30,45 * * * *`.
+
+Adding `"second": { "type": "value", "value": 0 }` produces
+`0 */5 * * * *` (6 fields); adding `"year": 2026` as well produces
+`0 */5 * * * * 2026` (7 fields).
+
+---
+
+### cron_parse
+
+Parse a cron expression into structured fields and an English description.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `expression` | string | yes | Cron expression (5–7 fields) |
+
+The expression is normalized (single spaces) and validated. Invalid expressions
+return `isError: true`.
+
+The result is returned as pretty-printed JSON text and `structuredContent`; the
+tool declares an `outputSchema`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `expression` | string | Normalized cron expression |
+| `field_count` | integer | `5`, `6`, or `7` |
+| `fields` | object | Structured `CronField` values; missing seconds/year are `null` |
+| `raw_fields` | object | Original field strings; missing seconds/year are `null` |
+| `description` | string | English description of the schedule |
+
+Numeric fields are parsed into structured terms:
+
+- `*` → `{ "type": "wildcard" }`
+- `5` → `{ "type": "value", "value": 5 }`
+- `1-5` → `{ "type": "range", "start": 1, "end": 5 }`
+- `*/5` → `{ "type": "step", "step": 5 }`
+- `1-10/2` → `{ "type": "step", "start": 1, "end": 10, "step": 2 }`
+- `1,3,5` → an array of terms
+
+Fields using names or special syntax (e.g. `MON`, `L`) are returned as raw
+strings in `fields`.
+
+Example: `0 */5 * * * *` →
+
+```json
+{
+  "expression": "0 */5 * * * *",
+  "field_count": 6,
+  "fields": {
+    "second": { "type": "value", "value": 0 },
+    "minute": { "type": "step", "step": 5 },
+    "hour": { "type": "wildcard" },
+    "day_of_month": { "type": "wildcard" },
+    "month": { "type": "wildcard" },
+    "day_of_week": { "type": "wildcard" },
+    "year": null
+  },
+  "raw_fields": {
+    "second": "0",
+    "minute": "*/5",
+    "hour": "*",
+    "day_of_month": "*",
+    "month": "*",
+    "day_of_week": "*",
+    "year": null
+  },
+  "description": "At every 5 minutes."
+}
+```
+
 ## Encoding
 
 ### url_encode

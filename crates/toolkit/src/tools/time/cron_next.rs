@@ -17,7 +17,7 @@ use crate::UtcDateTime;
 pub struct TimezoneOffset(FixedOffset);
 
 impl TimezoneOffset {
-    fn utc() -> Self {
+    pub(super) fn utc() -> Self {
         Self(FixedOffset::east_opt(0).expect("zero offset is always valid"))
     }
 
@@ -35,7 +35,7 @@ impl TimezoneOffset {
         map
     }
 
-    fn fixed_offset(self) -> FixedOffset {
+    pub(super) fn fixed_offset(self) -> FixedOffset {
         self.0
     }
 }

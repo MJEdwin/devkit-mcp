@@ -226,6 +226,9 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 | `lunar_to_solar_date` | Lunar date (year/month/day, leap flag) → Gregorian date |
 | `cron_validate` | Validate a cron expression and describe its schedule |
 | `cron_next` | Compute the next N cron occurrences with a fixed UTC offset |
+| `cron_prev` | Compute the previous N cron occurrences with a fixed UTC offset |
+| `cron_generate` | Build a cron expression from per-field values |
+| `cron_parse` | Parse a cron expression into fields and a description |
 
 ### Encoding
 

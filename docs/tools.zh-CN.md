@@ -239,6 +239,186 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 }
 ```
 
+---
+
+### cron_prev
+
+计算 cron 表达式之前 N 次执行时间。
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|---|---|---|---|---|
+| `expression` | string | 是 | — | cron 表达式（5–7 字段） |
+| `from` | string (`date-time`) | 否 | 当前时间 | RFC 3339 起始时间；结果严格早于该时间 |
+| `count` | integer (`1`–`50`) | 否 | `5` | 返回的执行次数 |
+| `timezone` | string (`±HH:MM` 或 `Z`) | 否 | `Z` | 固定 UTC 偏移 |
+
+- 结果按最近优先（从新到旧）排列
+- 非法表达式返回 `isError: true`
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `timezone` | string | 实际使用的 UTC 偏移 |
+| `count` | integer | 返回的时间数量 |
+| `times` | array | RFC 3339 时间，最近优先 |
+
+示例：表达式 `0 * * * *`，`from: "2026-01-01T03:00:00Z"`，`count: 3` →
+
+```json
+{
+  "timezone": "Z",
+  "count": 3,
+  "times": [
+    "2026-01-01T02:00:00Z",
+    "2026-01-01T01:00:00Z",
+    "2026-01-01T00:00:00Z"
+  ]
+}
+```
+
+---
+
+### cron_generate
+
+根据每个字段的值生成 cron 表达式。
+
+每个字段支持以下形式之一：
+
+- 原始 cron 字符串，例如 `"*/5"`、`"1-5"`、`"1,3,5"`、`"*"`
+- 数字，例如 `5`
+- 结构化 term：
+  - `{ "type": "wildcard" }` → `*`
+  - `{ "type": "value", "value": 5 }`
+  - `{ "type": "range", "start": 1, "end": 5 }`
+  - `{ "type": "step", "step": 5 }` → `*/5`
+  - `{ "type": "step", "start": 1, "end": 10, "step": 2 }` → `1-10/2`
+  - `{ "type": "step", "start": 5, "step": 10 }` → `5/10`
+- term 数组（枚举），用逗号连接，例如
+  `[{ "type": "range", "start": 0, "end": 30 }, { "type": "value", "value": 45 }]`
+  → `0-30,45`
+
+值只支持数字；`MON`、`JAN` 之类的名称会被拒绝。
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `second` | CronField | 否 | 秒字段（0–59）；提供后生成 6 或 7 字段表达式 |
+| `minute` | CronField | 是 | 分字段（0–59） |
+| `hour` | CronField | 是 | 时字段（0–23） |
+| `day_of_month` | CronField | 是 | 日字段（1–31） |
+| `month` | CronField | 是 | 月字段（1–12） |
+| `day_of_week` | CronField | 是 | 周字段（0–7） |
+| `year` | CronField | 否 | 年份字段；需要同时提供 `second` |
+
+字段会按 cron 顺序拼接并校验。空字段、包含空白的字段、非法 term（`step`
+为 0、有 `end` 无 `start`、空数组）、只有 `year` 没有 `second`，以及非法
+字段值都会返回 `isError: true`。
+
+结果会同时以美化后的 JSON 文本和 `structuredContent` 返回，并声明
+`outputSchema`。
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `expression` | string | 生成的 cron 表达式 |
+| `field_count` | integer | `5`、`6` 或 `7` |
+| `description` | string | 英文调度描述 |
+
+示例 —— 用结构化 step 表示每 5 分钟：
+
+```json
+{
+  "minute": { "type": "step", "step": 5 },
+  "hour": "*",
+  "day_of_month": "*",
+  "month": "*",
+  "day_of_week": "*"
+}
+```
+
+→ `{"expression": "*/5 * * * *", "field_count": 5, "description": "..."}`。
+
+示例 —— 范围 + 枚举：
+
+```json
+{
+  "minute": [
+    { "type": "range", "start": 0, "end": 30 },
+    { "type": "value", "value": 45 }
+  ],
+  "hour": "*",
+  "day_of_month": "*",
+  "month": "*",
+  "day_of_week": "*"
+}
+```
+
+→ `0-30,45 * * * *`。
+
+再加上 `"second": { "type": "value", "value": 0 }` 会生成
+`0 */5 * * * *`（6 字段）；同时加 `"year": 2026` 会生成
+`0 */5 * * * * 2026`（7 字段）。
+
+---
+
+### cron_parse
+
+把 cron 表达式解析为结构化字段和英文描述。
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `expression` | string | 是 | cron 表达式（5–7 字段） |
+
+表达式会被规范化（单个空格分隔）并校验。非法表达式返回 `isError: true`。
+
+结果会同时以美化后的 JSON 文本和 `structuredContent` 返回，并声明
+`outputSchema`。
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `expression` | string | 规范化后的 cron 表达式 |
+| `field_count` | integer | `5`、`6` 或 `7` |
+| `fields` | object | 结构化 `CronField` 值；缺失的秒/年字段为 `null` |
+| `raw_fields` | object | 原始字段字符串；缺失的秒/年字段为 `null` |
+| `description` | string | 英文调度描述 |
+
+数字字段会被解析为结构化 term：
+
+- `*` → `{ "type": "wildcard" }`
+- `5` → `{ "type": "value", "value": 5 }`
+- `1-5` → `{ "type": "range", "start": 1, "end": 5 }`
+- `*/5` → `{ "type": "step", "step": 5 }`
+- `1-10/2` → `{ "type": "step", "start": 1, "end": 10, "step": 2 }`
+- `1,3,5` → term 数组
+
+使用名称或特殊语法的字段（例如 `MON`、`L`）会以原始字符串形式放在
+`fields` 中。
+
+示例：`0 */5 * * * *` →
+
+```json
+{
+  "expression": "0 */5 * * * *",
+  "field_count": 6,
+  "fields": {
+    "second": { "type": "value", "value": 0 },
+    "minute": { "type": "step", "step": 5 },
+    "hour": { "type": "wildcard" },
+    "day_of_month": { "type": "wildcard" },
+    "month": { "type": "wildcard" },
+    "day_of_week": { "type": "wildcard" },
+    "year": null
+  },
+  "raw_fields": {
+    "second": "0",
+    "minute": "*/5",
+    "hour": "*",
+    "day_of_month": "*",
+    "month": "*",
+    "day_of_week": "*",
+    "year": null
+  },
+  "description": "At every 5 minutes."
+}
+```
+
 ## 编码（Encoding）
 
 ### url_encode
