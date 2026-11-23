@@ -5,7 +5,7 @@
 //! - `digest`   — hash and HMAC
 //! - `symmetric` — AES / DES encryption/decryption
 //! - `rsa`      — RSA keys, encryption, signatures
-//! - `misc`     — other generators (UUID)
+//! - `misc`     — other generators (UUID, random values)
 //!
 //! To add a tool:
 //! 1. create `tools/<category>/<tool_name>.rs`
@@ -36,6 +36,8 @@ tool_box!(
     ToolkitTools,
     [
         GenerateUuidTool,
+        RandomNumberTool,
+        RandomStringTool,
         CurrentTimeTool,
         UnixToIso8601Tool,
         Iso8601ToUnixTool,

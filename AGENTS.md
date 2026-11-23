@@ -19,7 +19,7 @@ Categories:
 - `digest` — hashes and HMAC
 - `symmetric` — symmetric encryption (AES, DES/3DES)
 - `rsa` — RSA keys, encryption, signatures
-- `misc` — other generators (UUID)
+- `misc` — other generators (UUID, random values)
 
 ## Common commands
 

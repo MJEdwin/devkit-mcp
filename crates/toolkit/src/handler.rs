@@ -45,6 +45,8 @@ impl ServerHandler for ToolkitHandler {
 
         let result = match tool {
             ToolkitTools::GenerateUuidTool(tool) => tool.call_tool()?,
+            ToolkitTools::RandomNumberTool(tool) => tool.call_tool()?,
+            ToolkitTools::RandomStringTool(tool) => tool.call_tool()?,
             ToolkitTools::CurrentTimeTool(tool) => tool.call_tool()?,
             ToolkitTools::UnixToIso8601Tool(tool) => tool.call_tool()?,
             ToolkitTools::Iso8601ToUnixTool(tool) => tool.call_tool()?,

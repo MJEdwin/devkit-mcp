@@ -793,3 +793,50 @@ Arguments:
 ```
 
 Output: UUID text, e.g. `01A20175-C53C-7128-A588-7FE1080D1C8D`.
+
+---
+
+### random_number
+
+Generate a random integer or floating-point number from the operating system
+RNG. `decimals` selects the mode.
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `min` | number | no | `0` (integer) / `0.0` (float) | Lower bound (inclusive) |
+| `max` | number | no | `100` (integer) / `1.0` (float) | Upper bound (inclusive for integers, exclusive for floats) |
+| `decimals` | integer (`0`–`15`) | no | `0` | `0` = integer; `1`–`15` = float with that many decimals |
+
+- `decimals: 0`: returns an integer uniform in `[min, max]`. Bounds default to
+  `0` and `100` and must be finite whole numbers within ±2^53.
+- `decimals: 1`–`15`: returns a float uniform in `[min, max)`, rounded to
+  `decimals` places. Bounds default to `0.0` and `1.0`; if `min == max`, that
+  value is returned.
+
+Examples:
+
+```json
+{ "min": 1, "max": 6 }
+{ "min": 0, "max": 1, "decimals": 4 }
+```
+
+Output: the generated number as text.
+
+---
+
+### random_string
+
+Generate a random string from the operating system RNG.
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `length` | integer (`1`–`1024`) | no | `16` | String length |
+| `charset` | string (`alphanumeric`, `alphabetic`, `numeric`, `hex`) | no | `alphanumeric` | Character set |
+
+Example:
+
+```json
+{ "length": 32, "charset": "hex" }
+```
+
+Output: the generated string.

@@ -182,6 +182,8 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 | Tool | Description |
 |---|---|
 | `generate_uuid` | Generate a UUID v4 or v7, with optional uppercase / hyphen control |
+| `random_number` | Generate a random integer (`decimals: 0`) or float |
+| `random_string` | Generate a random string from a charset |
 
 Full parameter tables and examples: [`docs/tools.md`](docs/tools.md)
 (English) / [`docs/tools.zh-CN.md`](docs/tools.zh-CN.md) (简体中文).
