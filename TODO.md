@@ -60,21 +60,21 @@
 
 ## 3. Cron 表达式工具（cron）
 
-建议放在 `crates/toolkit/src/tools/time/`。
+已放在 `crates/toolkit/src/tools/time/`。
 
-- [ ] `cron_validate`
-  - 校验 cron 表达式
+- [x] `cron_validate`（已实现）
+  - 校验 cron 表达式并返回英文描述
   - 参数：`expression`
-  - 返回：`valid`、字段数量、`error`（无效时）
-- [ ] `cron_next`
+  - 返回：`valid`、`error`、`description`
+- [x] `cron_next`（已实现）
   - 计算接下来 N 次执行时间
-  - 参数：`expression`、可选 `from`（RFC 3339，默认当前时间）、可选 `count`（默认 5，最大 50）、可选 `timezone`
-  - 返回：RFC 3339 时间数组
+  - 参数：`expression`、可选 `from`、`count`、`timezone`（`utc` / `asia_shanghai`）
+  - 返回：`timezone`、`count`、`times`
 - 可选：`cron_prev` / `cron_describe`
 
 约束与注意：
 
-- 依赖候选：`croner`（支持 5/6/7 字段）或 `cron`
+- 依赖：`croner` 5（支持 5–7 字段）
 - 明确支持的字段数：
   - 5 字段：分 时 日 月 周
   - 6 字段（可选）：秒 分 时 日 月 周

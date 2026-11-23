@@ -224,6 +224,8 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 | `iso8601_to_unix` | ISO 8601 datetime (offset required) → Unix timestamp |
 | `solar_to_lunar_date` | Gregorian date → lunar date, sexagenary year, and zodiac |
 | `lunar_to_solar_date` | Lunar date (year/month/day, leap flag) → Gregorian date |
+| `cron_validate` | Validate a cron expression and describe its schedule |
+| `cron_next` | Compute the next N cron occurrences in UTC or Asia/Shanghai |
 
 ### Encoding
 

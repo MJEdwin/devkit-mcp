@@ -1,6 +1,6 @@
 //! MCP tools grouped by category:
 //!
-//! - `time`     — current time, timestamp, and lunar/solar date conversion
+//! - `time`     — current time, timestamp, lunar/solar date, and cron conversion
 //! - `encoding` — URL, binary/text encodings, case conversion
 //! - `regex`    — regular expression matching and replacement
 //! - `json`     — JSON formatting, querying, and validation
@@ -49,6 +49,8 @@ tool_box!(
         Iso8601ToUnixTool,
         SolarToLunarDateTool,
         LunarToSolarDateTool,
+        CronValidateTool,
+        CronNextTool,
         UrlEncodeTool,
         UrlDecodeTool,
         BinaryToHexTool,
@@ -126,6 +128,8 @@ const OUTPUT_SCHEMA_PROVIDERS: &[OutputSchemaProvider] = &[
     rsa::key_components_output_schema,
     time::solar_to_lunar_date_output_schema,
     time::lunar_to_solar_date_output_schema,
+    time::cron_validate_output_schema,
+    time::cron_next_output_schema,
     json::json_validate_output_schema,
     json::json_schema_validate_output_schema,
     json::json_query_output_schema,

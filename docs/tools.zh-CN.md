@@ -180,6 +180,64 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 
 闰月示例：2023 年闰二月第一天 → `2023-03-22`。
 
+---
+
+### cron_validate
+
+校验 cron 表达式。
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `expression` | string | 是 | cron 表达式（5–7 字段，可带秒和年份） |
+
+非法表达式属于正常结果（`valid: false`），不会标记为 `isError`。结果会同时
+以美化后的 JSON 文本和 `structuredContent` 返回，并声明 `outputSchema`。
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `valid` | boolean | 表达式是否合法 |
+| `error` | string \| null | 解析错误信息；合法时为 `null` |
+| `description` | string \| null | 英文调度描述；非法时为 `null` |
+
+示例：`*/5 * * * *` → `valid: true`，描述类似 "Every 5 minutes"。
+
+---
+
+### cron_next
+
+计算 cron 表达式接下来 N 次执行时间。
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|---|---|---|---|---|
+| `expression` | string | 是 | — | cron 表达式（5–7 字段） |
+| `from` | string (`date-time`) | 否 | 当前时间 | RFC 3339 起始时间；结果严格晚于该时间 |
+| `count` | integer (`1`–`50`) | 否 | `5` | 返回的执行次数 |
+| `timezone` | string (`utc`, `asia_shanghai`) | 否 | `utc` | 计算时区 |
+
+- 支持 5 字段（分 时 日 月 周）、6 字段（前置秒）和 7 字段（秒 + 年份）
+- `asia_shanghai` 使用固定 UTC+8（无夏令时）
+- 非法表达式或不存在下一次执行时间时返回 `isError: true`
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `timezone` | string | `utc` 或 `asia_shanghai` |
+| `count` | integer | 返回的时间数量 |
+| `times` | array | RFC 3339 时间，带 `Z` 或 `+08:00` |
+
+示例：表达式 `0 * * * *`，`from: "2026-01-01T00:00:00Z"`，`count: 3`：
+
+```json
+{
+  "timezone": "utc",
+  "count": 3,
+  "times": [
+    "2026-01-01T01:00:00Z",
+    "2026-01-01T02:00:00Z",
+    "2026-01-01T03:00:00Z"
+  ]
+}
+```
+
 ## 编码（Encoding）
 
 ### url_encode

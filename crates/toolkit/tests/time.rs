@@ -2,8 +2,8 @@ mod common;
 
 use common::{structured, text};
 use toolkit::{
-    CurrentTimeTool, Iso8601ToUnixTool, LunarToSolarDateTool, SolarToLunarDateTool, TimestampUnit,
-    UnixToIso8601Tool, UtcDateTime,
+    CronNextTool, CronTimezone, CronValidateTool, CurrentTimeTool, Iso8601ToUnixTool,
+    LunarToSolarDateTool, SolarToLunarDateTool, TimestampUnit, UnixToIso8601Tool, UtcDateTime,
 };
 
 #[test]
@@ -285,5 +285,131 @@ fn utc_datetime_serializes_as_utc() {
     assert_eq!(
         serde_json::to_value(datetime).expect("serialize"),
         serde_json::json!("2023-11-14T22:13:20Z")
+    );
+}
+
+#[test]
+fn cron_validate_accepts_and_describes() {
+    let five = CronValidateTool {
+        expression: "*/5 * * * *".to_string(),
+    }
+    .call_tool()
+    .expect("cron_validate");
+
+    let value = structured(&five);
+    assert_eq!(value["valid"].as_bool(), Some(true));
+    assert!(value["error"].is_null());
+    assert!(
+        !value["description"]
+            .as_str()
+            .expect("description")
+            .is_empty()
+    );
+
+    let six = CronValidateTool {
+        expression: "0 */5 * * * *".to_string(),
+    }
+    .call_tool()
+    .expect("cron_validate");
+    assert_eq!(structured(&six)["valid"].as_bool(), Some(true));
+}
+
+#[test]
+fn cron_validate_rejects_invalid_expression() {
+    let result = CronValidateTool {
+        expression: "not a cron".to_string(),
+    }
+    .call_tool()
+    .expect("cron_validate");
+
+    let value = structured(&result);
+    assert_eq!(value["valid"].as_bool(), Some(false));
+    assert!(value["error"].as_str().is_some());
+    assert!(value["description"].is_null());
+}
+
+#[test]
+fn cron_next_utc() {
+    let result = CronNextTool {
+        expression: "0 * * * *".to_string(),
+        from: Some("2026-01-01T00:00:00Z".parse().expect("valid datetime")),
+        count: Some(3),
+        timezone: None,
+    }
+    .call_tool()
+    .expect("cron_next");
+
+    let value = structured(&result);
+    assert_eq!(value["timezone"].as_str(), Some("utc"));
+    assert_eq!(value["count"].as_u64(), Some(3));
+    assert_eq!(
+        value["times"],
+        serde_json::json!([
+            "2026-01-01T01:00:00Z",
+            "2026-01-01T02:00:00Z",
+            "2026-01-01T03:00:00Z"
+        ])
+    );
+}
+
+#[test]
+fn cron_next_shanghai_and_seconds() {
+    let shanghai = CronNextTool {
+        expression: "0 9 * * *".to_string(),
+        from: Some("2026-01-01T00:00:00+08:00".parse().expect("valid datetime")),
+        count: Some(1),
+        timezone: Some(CronTimezone::AsiaShanghai),
+    }
+    .call_tool()
+    .expect("cron_next");
+
+    let value = structured(&shanghai);
+    assert_eq!(value["timezone"].as_str(), Some("asia_shanghai"));
+    assert_eq!(
+        value["times"],
+        serde_json::json!(["2026-01-01T09:00:00+08:00"])
+    );
+
+    let seconds = CronNextTool {
+        expression: "*/30 * * * * *".to_string(),
+        from: Some("2026-01-01T00:00:00Z".parse().expect("valid datetime")),
+        count: Some(3),
+        timezone: None,
+    }
+    .call_tool()
+    .expect("cron_next");
+
+    assert_eq!(
+        structured(&seconds)["times"],
+        serde_json::json!([
+            "2026-01-01T00:00:30Z",
+            "2026-01-01T00:01:00Z",
+            "2026-01-01T00:01:30Z"
+        ])
+    );
+}
+
+#[test]
+fn cron_next_rejects_invalid_input() {
+    assert!(
+        CronNextTool {
+            expression: "bad".to_string(),
+            from: None,
+            count: None,
+            timezone: None,
+        }
+        .call_tool()
+        .is_err()
+    );
+
+    assert!(
+        CronNextTool {
+            expression: "0 * * * *".to_string(),
+            from: None,
+            count: Some(0),
+            timezone: None,
+        }
+        .call_tool()
+        .is_err()
     );
 }

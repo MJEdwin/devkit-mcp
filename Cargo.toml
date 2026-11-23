@@ -22,6 +22,7 @@ cfb-mode = "0.9"
 chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
 clap = { version = "4", features = ["derive", "env"] }
 convert_case = "0.12"
+croner = "5"
 ctr = "0.10"
 des = "0.9"
 ecb = { version = "0.2", features = ["alloc"] }

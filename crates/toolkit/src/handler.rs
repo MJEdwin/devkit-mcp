@@ -52,6 +52,8 @@ impl ServerHandler for ToolkitHandler {
             ToolkitTools::Iso8601ToUnixTool(tool) => tool.call_tool()?,
             ToolkitTools::SolarToLunarDateTool(tool) => tool.call_tool()?,
             ToolkitTools::LunarToSolarDateTool(tool) => tool.call_tool()?,
+            ToolkitTools::CronValidateTool(tool) => tool.call_tool()?,
+            ToolkitTools::CronNextTool(tool) => tool.call_tool()?,
             ToolkitTools::UrlEncodeTool(tool) => tool.call_tool()?,
             ToolkitTools::UrlDecodeTool(tool) => tool.call_tool()?,
             ToolkitTools::BinaryToHexTool(tool) => tool.call_tool()?,

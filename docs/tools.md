@@ -181,6 +181,68 @@ Example: lunar `2024-01-01` (not leap) is `2024-02-10`:
 
 Leap-month example: year `2023`, leap month `2`, day `1` → `2023-03-22`.
 
+---
+
+### cron_validate
+
+Validate a cron expression.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `expression` | string | yes | Cron expression (5–7 fields, with optional seconds and year) |
+
+Invalid expressions are a normal result (`valid: false`), not an `isError`.
+The result is returned as pretty-printed JSON text and `structuredContent`, and
+the tool declares an `outputSchema`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `valid` | boolean | Whether the expression parses |
+| `error` | string \| null | Parser error message, or `null` when valid |
+| `description` | string \| null | English description of the schedule, or `null` when invalid |
+
+Example: `*/5 * * * *` → `valid: true` with a description such as
+"Every 5 minutes".
+
+---
+
+### cron_next
+
+Compute the next N execution times for a cron expression.
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `expression` | string | yes | — | Cron expression (5–7 fields) |
+| `from` | string (`date-time`) | no | now | RFC 3339 start time; results are strictly after it |
+| `count` | integer (`1`–`50`) | no | `5` | Number of occurrences |
+| `timezone` | string (`utc`, `asia_shanghai`) | no | `utc` | Evaluation timezone |
+
+- Supports 5 fields (`minute hour day month weekday`), 6 fields (leading
+  seconds), and 7 fields (seconds plus year).
+- `asia_shanghai` uses a fixed UTC+8 offset (no DST).
+- Invalid expressions or an expression with no next occurrence return
+  `isError: true`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `timezone` | string | `utc` or `asia_shanghai` |
+| `count` | integer | Number of occurrences returned |
+| `times` | array | RFC 3339 timestamps with `Z` or `+08:00` |
+
+Example: expression `0 * * * *`, `from: "2026-01-01T00:00:00Z"`, `count: 3`:
+
+```json
+{
+  "timezone": "utc",
+  "count": 3,
+  "times": [
+    "2026-01-01T01:00:00Z",
+    "2026-01-01T02:00:00Z",
+    "2026-01-01T03:00:00Z"
+  ]
+}
+```
+
 ## Encoding
 
 ### url_encode
