@@ -587,6 +587,50 @@ Examples:
 
 Output: the converted text (`MyVarName`, `http_request`).
 
+---
+
+### jwt_decode
+
+Decode a JWT and optionally verify its signature.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `token` | string | yes | Compact JWS token |
+| `key` | string | no | Verification key: an HMAC secret or an RSA/EC/EdDSA PEM public key |
+
+Without `key`, the header and payload are decoded but the signature is not
+checked (`signature_valid: null`). With `key`, the signature is verified using
+the header `alg`; issuer, audience, and expiry are reported but not enforced.
+
+- HMAC (`HS256/384/512`): `key` is the raw secret string.
+- `RS*` / `PS*`: RSA PEM public key.
+- `ES256/384`: EC PEM public key.
+- `EdDSA`: Ed25519 PEM public key.
+- A PEM-looking key with an HMAC token is rejected to avoid algorithm confusion.
+- `alg: none` is decoded without a key but rejected for verification.
+
+The result is returned as pretty-printed JSON text and `structuredContent`; the
+tool declares an `outputSchema`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `header` | object | Decoded header |
+| `payload` | any | Decoded claims |
+| `algorithm` | string \| null | Header `alg` |
+| `signature_valid` | boolean \| null | Signature result; `null` without a key |
+| `verification_error` | string \| null | Failure reason, or `null` |
+| `expired` | boolean \| null | Whether `exp` is in the past; `null` without numeric `exp` |
+| `expires_at` | string \| null | `exp` as an RFC 3339 UTC timestamp |
+
+Example:
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "key": "my-secret"
+}
+```
+
 ## Regex
 
 ### regex_match

@@ -248,6 +248,7 @@ claude mcp list
 | `string_to_binary` | 文本 → base64 二进制（同上编码） |
 | `change_case` | 小写 / 大写 / 标题格式转换 |
 | `naming_case` | PascalCase / camelCase / lower_snake / UPPER_SNAKE 转换 |
+| `jwt_decode` | 解码 JWT，可选校验签名（HMAC/RSA/EC/EdDSA） |
 
 ### 正则
 

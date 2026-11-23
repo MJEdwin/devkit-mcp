@@ -579,6 +579,50 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 
 输出：转换后的文本（`MyVarName`、`http_request`）。
 
+---
+
+### jwt_decode
+
+解码 JWT，并可选择校验签名。
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `token` | string | 是 | 紧凑格式的 JWS token |
+| `key` | string | 否 | 校验密钥：HMAC secret，或 RSA/EC/EdDSA PEM 公钥 |
+
+不传 `key` 时只解码 header 和 payload，不校验签名
+（`signature_valid: null`）。传入 `key` 时使用 header 中的 `alg` 校验签名；
+issuer、audience 和过期时间只返回，不强制校验。
+
+- HMAC（`HS256/384/512`）：`key` 是原始 secret 字符串。
+- `RS*` / `PS*`：RSA PEM 公钥。
+- `ES256/384`：EC PEM 公钥。
+- `EdDSA`：Ed25519 PEM 公钥。
+- HMAC token 搭配 PEM 形式的 key 会被拒绝，避免算法混淆。
+- `alg: none` 可以在无 key 时解码，但校验时会被拒绝。
+
+结果会同时以美化后的 JSON 文本和 `structuredContent` 返回，并声明
+`outputSchema`。
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `header` | object | 解码后的 header |
+| `payload` | any | 解码后的 claims |
+| `algorithm` | string \| null | header 中的 `alg` |
+| `signature_valid` | boolean \| null | 签名校验结果；未传 key 时为 `null` |
+| `verification_error` | string \| null | 校验失败原因，或 `null` |
+| `expired` | boolean \| null | `exp` 是否已过期；没有数字 `exp` 时为 `null` |
+| `expires_at` | string \| null | `exp` 对应的 RFC 3339 UTC 时间 |
+
+示例：
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "key": "my-secret"
+}
+```
+
 ## 正则（Regex）
 
 ### regex_match

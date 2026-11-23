@@ -250,6 +250,7 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 | `string_to_binary` | Text → base64 binary (same encodings) |
 | `change_case` | Convert text between lowercase, uppercase, and title case |
 | `naming_case` | Convert between PascalCase / camelCase / lower_snake / UPPER_SNAKE |
+| `jwt_decode` | Decode a JWT and optionally verify its signature (HMAC/RSA/EC/EdDSA) |
 
 ### Regex
 

@@ -1,10 +1,13 @@
 mod common;
 
-use common::{base64, bin, text, unbase64};
+use base64::Engine as _;
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use common::{base64, bin, structured, text, unbase64};
+use jsonwebtoken::{Algorithm, EncodingKey, Header, encode};
 use toolkit::{
     BinaryToHexTool, BinaryToStringTool, CaseMode, ChangeCaseTool, EncodingStandard,
-    HexToBinaryTool, NamingCase, NamingCaseTool, StringToBinaryTool, TextEncoding, UrlDecodeTool,
-    UrlEncodeTool,
+    HexToBinaryTool, JwtDecodeTool, NamingCase, NamingCaseTool, StringToBinaryTool, TextEncoding,
+    UrlDecodeTool, UrlEncodeTool,
 };
 
 #[test]
@@ -343,4 +346,139 @@ fn hex_and_binary_tools_roundtrip_bytes() {
     .call_tool()
     .expect("hex_to_binary");
     assert_eq!(unbase64(text(&binary)), bytes);
+}
+
+fn hs256_token(secret: &[u8], claims: serde_json::Value) -> String {
+    encode(
+        &Header::new(Algorithm::HS256),
+        &claims,
+        &EncodingKey::from_secret(secret),
+    )
+    .expect("encode token")
+}
+
+fn segment(value: &str) -> String {
+    URL_SAFE_NO_PAD.encode(value.as_bytes())
+}
+
+#[test]
+fn jwt_decode_without_key() {
+    let token = hs256_token(
+        b"secret",
+        serde_json::json!({ "sub": "42", "exp": 2_000_000_000 }),
+    );
+    let result = JwtDecodeTool { token, key: None }
+        .call_tool()
+        .expect("jwt_decode");
+
+    let value = structured(&result);
+    assert_eq!(value["header"]["alg"].as_str(), Some("HS256"));
+    assert_eq!(value["payload"]["sub"].as_str(), Some("42"));
+    assert_eq!(value["algorithm"].as_str(), Some("HS256"));
+    assert!(value["signature_valid"].is_null());
+    assert!(value["verification_error"].is_null());
+    assert_eq!(value["expired"].as_bool(), Some(false));
+    assert!(value["expires_at"].as_str().is_some());
+
+    let pretty = serde_json::to_string_pretty(value).expect("serialize");
+    assert_eq!(text(&result), pretty);
+}
+
+#[test]
+fn jwt_decode_verifies_signature() {
+    let token = hs256_token(b"secret", serde_json::json!({ "sub": "42" }));
+
+    let valid = JwtDecodeTool {
+        token: token.clone(),
+        key: Some("secret".to_string()),
+    }
+    .call_tool()
+    .expect("jwt_decode");
+    let value = structured(&valid);
+    assert_eq!(value["signature_valid"].as_bool(), Some(true));
+    assert!(value["verification_error"].is_null());
+
+    let invalid = JwtDecodeTool {
+        token,
+        key: Some("wrong".to_string()),
+    }
+    .call_tool()
+    .expect("jwt_decode");
+    let value = structured(&invalid);
+    assert_eq!(value["signature_valid"].as_bool(), Some(false));
+    assert_eq!(
+        value["verification_error"].as_str(),
+        Some("invalid signature")
+    );
+}
+
+#[test]
+fn jwt_decode_reports_expiry() {
+    let expired = hs256_token(b"secret", serde_json::json!({ "exp": 1_000_000_000 }));
+    let result = JwtDecodeTool {
+        token: expired,
+        key: None,
+    }
+    .call_tool()
+    .expect("jwt_decode");
+    let value = structured(&result);
+    assert_eq!(value["expired"].as_bool(), Some(true));
+    assert!(value["expires_at"].as_str().is_some());
+
+    let no_exp = hs256_token(b"secret", serde_json::json!({ "sub": "x" }));
+    let result = JwtDecodeTool {
+        token: no_exp,
+        key: None,
+    }
+    .call_tool()
+    .expect("jwt_decode");
+    let value = structured(&result);
+    assert!(value["expired"].is_null());
+    assert!(value["expires_at"].is_null());
+}
+
+#[test]
+fn jwt_decode_rejects_bad_input() {
+    assert!(
+        JwtDecodeTool {
+            token: "abc".to_string(),
+            key: None,
+        }
+        .call_tool()
+        .is_err()
+    );
+
+    let none_token = format!(
+        "{}.{}.",
+        segment(r#"{"alg":"none"}"#),
+        segment(r#"{"sub":"1"}"#)
+    );
+    assert!(
+        JwtDecodeTool {
+            token: none_token.clone(),
+            key: Some("secret".to_string()),
+        }
+        .call_tool()
+        .is_err()
+    );
+
+    let decoded = JwtDecodeTool {
+        token: none_token,
+        key: None,
+    }
+    .call_tool()
+    .expect("jwt_decode");
+    let value = structured(&decoded);
+    assert_eq!(value["algorithm"].as_str(), Some("none"));
+    assert!(value["signature_valid"].is_null());
+
+    let token = hs256_token(b"secret", serde_json::json!({ "sub": "1" }));
+    assert!(
+        JwtDecodeTool {
+            token,
+            key: Some("-----BEGIN PUBLIC KEY-----\n...".to_string()),
+        }
+        .call_tool()
+        .is_err()
+    );
 }

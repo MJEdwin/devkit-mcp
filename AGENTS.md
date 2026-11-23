@@ -16,7 +16,7 @@ Categories:
 
 - `time` — current time, timestamp, lunar/solar date conversion
 - `cron` — cron expression validation, scheduling, parsing, and generation
-- `encoding` — URL / binary / text encodings, case conversion
+- `encoding` — URL / binary / text encodings, case conversion, JWT decoding
 - `regex` — regular expression matching and replacement
 - `json` — JSON formatting, querying, and validation
 - `digest` — hashes and HMAC

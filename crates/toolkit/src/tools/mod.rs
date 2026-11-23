@@ -2,7 +2,7 @@
 //!
 //! - `time`     — current time, timestamp, and lunar/solar date conversion
 //! - `cron`     — cron expression validation, scheduling, parsing, and generation
-//! - `encoding` — URL, binary/text encodings, case conversion
+//! - `encoding` — URL, binary/text encodings, case conversion, JWT decoding
 //! - `regex`    — regular expression matching and replacement
 //! - `json`     — JSON formatting, querying, and validation
 //! - `digest`   — hash and HMAC
@@ -66,6 +66,7 @@ tool_box!(
         StringToBinaryTool,
         ChangeCaseTool,
         NamingCaseTool,
+        JwtDecodeTool,
         RegexMatchTool,
         RegexReplaceTool,
         RegexTestTool,
@@ -143,6 +144,7 @@ const OUTPUT_SCHEMA_PROVIDERS: &[OutputSchemaProvider] = &[
     json::json_validate_output_schema,
     json::json_schema_validate_output_schema,
     json::json_query_output_schema,
+    encoding::jwt_decode_output_schema,
     regex::regex_match_output_schema,
     regex::regex_replace_output_schema,
     regex::regex_test_output_schema,

@@ -2817,6 +2817,7 @@ dependencies = [
  "hex-simd",
  "hmac 0.12.1",
  "jsonschema",
+ "jsonwebtoken",
  "lunar-lite",
  "md-5",
  "ofb",
