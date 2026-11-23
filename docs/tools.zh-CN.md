@@ -286,6 +286,60 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 
 六种编码都可以与 `binary_to_string` 相互往返转换。
 
+---
+
+### change_case
+
+把文本转换为小写、大写或标题格式。
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `text` | string | 是 | 要转换的文本 |
+| `case` | string (`lowercase`, `uppercase`, `titlecase`) | 是 | 目标大小写 |
+
+- `lowercase`：Unicode 小写转换（`ÄÖÜ` → `äöü`）。
+- `uppercase`：Unicode 大写转换（`straße` → `STRASSE`）。
+- `titlecase`：每个以空白分隔的单词首字符大写，其余字符小写；其他字符保持不变。
+
+示例：
+
+```json
+{ "text": "Hello WORLD", "case": "lowercase" }
+{ "text": "hello WORLD  from rust", "case": "titlecase" }
+```
+
+输出：转换后的文本（`hello world`、`Hello World  From Rust`）。
+
+---
+
+### naming_case
+
+在不同编程命名法之间转换文本。
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `text` | string | 是 | 要转换的文本 |
+| `case` | string (`pascal`, `camel`, `lower_snake`, `upper_snake`) | 是 | 目标命名法 |
+
+会自动识别分隔符（`_`、`-`、空格）、驼峰边界、缩写和数字作为单词边界
+（例如 `HTTPRequest` → `http_request`）。
+
+| `case` | `my_var_name` 的转换结果 |
+|---|---|
+| `pascal` | `MyVarName` |
+| `camel` | `myVarName` |
+| `lower_snake` | `my_var_name` |
+| `upper_snake` | `MY_VAR_NAME` |
+
+示例：
+
+```json
+{ "text": "my-var name", "case": "pascal" }
+{ "text": "HTTPRequest", "case": "lower_snake" }
+```
+
+输出：转换后的文本（`MyVarName`、`http_request`）。
+
 ## 摘要（Digest）
 
 ### digest

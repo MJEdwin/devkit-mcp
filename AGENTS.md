@@ -15,7 +15,7 @@ Tools live in `crates/toolkit/src/tools/<category>/`, one file per tool.
 Categories:
 
 - `time` — current time, timestamp conversion, lunar/solar date conversion
-- `encoding` — URL / binary / text encodings
+- `encoding` — URL / binary / text encodings, case conversion
 - `digest` — hashes and HMAC
 - `symmetric` — symmetric encryption (AES, DES/3DES)
 - `rsa` — RSA keys, encryption, signatures

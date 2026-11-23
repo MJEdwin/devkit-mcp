@@ -233,6 +233,8 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 | `hex_to_binary` | Hex string → base64 binary |
 | `binary_to_string` | Base64 binary → text (utf-8 / ascii / utf-16 / utf-32 / gbk / gb18030) |
 | `string_to_binary` | Text → base64 binary (same encodings) |
+| `change_case` | Convert text between lowercase, uppercase, and title case |
+| `naming_case` | Convert between PascalCase / camelCase / lower_snake / UPPER_SNAKE |
 
 ### Digest
 

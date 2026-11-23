@@ -1,7 +1,7 @@
 //! MCP tools grouped by category:
 //!
 //! - `time`     — current time, timestamp, and lunar/solar date conversion
-//! - `encoding` — URL and binary/text encodings
+//! - `encoding` — URL, binary/text encodings, and case conversion
 //! - `digest`   — hash and HMAC
 //! - `symmetric` — AES / DES encryption/decryption
 //! - `rsa`      — RSA keys, encryption, signatures
@@ -49,6 +49,8 @@ tool_box!(
         HexToBinaryTool,
         BinaryToStringTool,
         StringToBinaryTool,
+        ChangeCaseTool,
+        NamingCaseTool,
         DigestTool,
         HmacTool,
         RsaEncryptTool,

@@ -2,8 +2,9 @@ mod common;
 
 use common::{base64, bin, text, unbase64};
 use toolkit::{
-    BinaryToHexTool, BinaryToStringTool, EncodingStandard, HexToBinaryTool, StringToBinaryTool,
-    TextEncoding, UrlDecodeTool, UrlEncodeTool,
+    BinaryToHexTool, BinaryToStringTool, CaseMode, ChangeCaseTool, EncodingStandard,
+    HexToBinaryTool, NamingCase, NamingCaseTool, StringToBinaryTool, TextEncoding, UrlDecodeTool,
+    UrlEncodeTool,
 };
 
 #[test]
@@ -24,6 +25,146 @@ fn binary_to_hex_lowercase_and_uppercase() {
     .call_tool()
     .expect("binary_to_hex");
     assert_eq!(text(&upper), "68656C6C6F");
+}
+
+#[test]
+fn change_case_lowercase_and_uppercase() {
+    let lower = ChangeCaseTool {
+        text: "Hello WORLD".to_string(),
+        case: CaseMode::Lowercase,
+    }
+    .call_tool()
+    .expect("change_case");
+    assert_eq!(text(&lower), "hello world");
+
+    let upper = ChangeCaseTool {
+        text: "Hello world".to_string(),
+        case: CaseMode::Uppercase,
+    }
+    .call_tool()
+    .expect("change_case");
+    assert_eq!(text(&upper), "HELLO WORLD");
+}
+
+#[test]
+fn change_case_titlecase() {
+    let result = ChangeCaseTool {
+        text: "hello WORLD  from rust".to_string(),
+        case: CaseMode::Titlecase,
+    }
+    .call_tool()
+    .expect("change_case");
+
+    assert_eq!(text(&result), "Hello World  From Rust");
+}
+
+#[test]
+fn change_case_unicode() {
+    let upper = ChangeCaseTool {
+        text: "héllo wörld straße".to_string(),
+        case: CaseMode::Uppercase,
+    }
+    .call_tool()
+    .expect("change_case");
+    assert_eq!(text(&upper), "HÉLLO WÖRLD STRASSE");
+
+    let lower = ChangeCaseTool {
+        text: "ÄÖÜ".to_string(),
+        case: CaseMode::Lowercase,
+    }
+    .call_tool()
+    .expect("change_case");
+    assert_eq!(text(&lower), "äöü");
+
+    let title = ChangeCaseTool {
+        text: "élan vital".to_string(),
+        case: CaseMode::Titlecase,
+    }
+    .call_tool()
+    .expect("change_case");
+    assert_eq!(text(&title), "Élan Vital");
+}
+
+#[test]
+fn change_case_empty_string() {
+    let result = ChangeCaseTool {
+        text: String::new(),
+        case: CaseMode::Titlecase,
+    }
+    .call_tool()
+    .expect("change_case");
+
+    assert_eq!(text(&result), "");
+}
+
+#[test]
+fn naming_case_converts_all_styles() {
+    for (case, expected) in [
+        (NamingCase::Pascal, "MyVarName"),
+        (NamingCase::Camel, "myVarName"),
+        (NamingCase::LowerSnake, "my_var_name"),
+        (NamingCase::UpperSnake, "MY_VAR_NAME"),
+    ] {
+        let result = NamingCaseTool {
+            text: "my_var_name".to_string(),
+            case,
+        }
+        .call_tool()
+        .expect("naming_case");
+
+        assert_eq!(text(&result), expected);
+    }
+}
+
+#[test]
+fn naming_case_handles_acronyms_and_separators() {
+    let acronym = NamingCaseTool {
+        text: "HTTPRequest".to_string(),
+        case: NamingCase::LowerSnake,
+    }
+    .call_tool()
+    .expect("naming_case");
+    assert_eq!(text(&acronym), "http_request");
+
+    let separated = NamingCaseTool {
+        text: "my-var name".to_string(),
+        case: NamingCase::Pascal,
+    }
+    .call_tool()
+    .expect("naming_case");
+    assert_eq!(text(&separated), "MyVarName");
+
+    let mixed = NamingCaseTool {
+        text: "some-file_name".to_string(),
+        case: NamingCase::Camel,
+    }
+    .call_tool()
+    .expect("naming_case");
+    assert_eq!(text(&mixed), "someFileName");
+}
+
+#[test]
+fn naming_case_handles_unicode() {
+    let result = NamingCaseTool {
+        text: "GranatÄpfel".to_string(),
+        case: NamingCase::LowerSnake,
+    }
+    .call_tool()
+    .expect("naming_case");
+
+    assert_eq!(text(&result), "granat_äpfel");
+}
+
+#[test]
+fn naming_case_empty_string() {
+    let result = NamingCaseTool {
+        text: String::new(),
+        case: NamingCase::Pascal,
+    }
+    .call_tool()
+    .expect("naming_case");
+
+    assert_eq!(text(&result), "");
 }
 
 #[test]

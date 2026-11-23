@@ -58,6 +58,8 @@ impl ServerHandler for ToolkitHandler {
             ToolkitTools::HexToBinaryTool(tool) => tool.call_tool()?,
             ToolkitTools::BinaryToStringTool(tool) => tool.call_tool()?,
             ToolkitTools::StringToBinaryTool(tool) => tool.call_tool()?,
+            ToolkitTools::ChangeCaseTool(tool) => tool.call_tool()?,
+            ToolkitTools::NamingCaseTool(tool) => tool.call_tool()?,
             ToolkitTools::DigestTool(tool) => tool.call_tool()?,
             ToolkitTools::HmacTool(tool) => tool.call_tool()?,
             ToolkitTools::RsaEncryptTool(tool) => tool.call_tool()?,

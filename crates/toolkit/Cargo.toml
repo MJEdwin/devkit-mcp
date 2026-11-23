@@ -13,6 +13,7 @@ block-buffer.workspace = true
 cbc.workspace = true
 cfb-mode.workspace = true
 chrono.workspace = true
+convert_case.workspace = true
 ctr.workspace = true
 des.workspace = true
 ecb.workspace = true

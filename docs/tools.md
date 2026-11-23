@@ -287,6 +287,61 @@ Output: base64-encoded binary (JSON Schema `binary` format).
 
 Round-trips with `binary_to_string` for all six encodings.
 
+---
+
+### change_case
+
+Convert text to lowercase, uppercase, or title case.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `text` | string | yes | Text to convert |
+| `case` | string (`lowercase`, `uppercase`, `titlecase`) | yes | Target case |
+
+- `lowercase`: Unicode lowercase (`ÄÖÜ` → `äöü`).
+- `uppercase`: Unicode uppercase (`straße` → `STRASSE`).
+- `titlecase`: uppercases the first character of each whitespace-separated word
+  and lowercases the rest; other characters are preserved.
+
+Examples:
+
+```json
+{ "text": "Hello WORLD", "case": "lowercase" }
+{ "text": "hello WORLD  from rust", "case": "titlecase" }
+```
+
+Output: the converted text (`hello world`, `Hello World  From Rust`).
+
+---
+
+### naming_case
+
+Convert text between common programming naming conventions.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `text` | string | yes | Text to convert |
+| `case` | string (`pascal`, `camel`, `lower_snake`, `upper_snake`) | yes | Target naming convention |
+
+Word boundaries are detected from separators (`_`, `-`, spaces), camel-case
+transitions, acronyms, and digits (e.g. `HTTPRequest` → `http_request`).
+
+| `case` | Example output for `my_var_name` |
+|---|---|
+| `pascal` | `MyVarName` |
+| `camel` | `myVarName` |
+| `lower_snake` | `my_var_name` |
+| `upper_snake` | `MY_VAR_NAME` |
+
+Examples:
+
+```json
+{ "text": "my-var name", "case": "pascal" }
+{ "text": "HTTPRequest", "case": "lower_snake" }
+```
+
+Output: the converted text (`MyVarName`, `http_request`).
+
 ## Digest
 
 ### digest
