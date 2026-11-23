@@ -289,7 +289,7 @@ binaries and attaches them to the GitHub Release:
 |---|---|
 | Linux | x86_64, arm64 |
 | macOS | arm64, x86_64 |
-| Windows | x86_64 |
+| Windows | x86_64, arm64 |
 
 ```bash
 git tag v0.0.1
