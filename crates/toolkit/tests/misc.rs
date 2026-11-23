@@ -1,7 +1,10 @@
 mod common;
 
 use common::text;
-use toolkit::{GenerateUuidTool, RandomCharset, RandomNumberTool, RandomStringTool, UuidVersion};
+use toolkit::{
+    GenerateUuidTool, RandomCharset, RandomNumberTool, RandomPrimeTool, RandomStringTool,
+    UuidVersion,
+};
 use uuid::Uuid;
 
 #[test]
@@ -235,4 +238,109 @@ fn random_string_rejects_invalid_length() {
 
         assert!(result.is_err(), "length {length} should be rejected");
     }
+}
+
+fn is_prime_trial_division(value: u64) -> bool {
+    value >= 2 && (2..value).all(|divisor| !value.is_multiple_of(divisor))
+}
+
+#[test]
+fn random_prime_within_range() {
+    for _ in 0..20 {
+        let result = RandomPrimeTool {
+            min: Some(100),
+            max: Some(200),
+        }
+        .call_tool()
+        .expect("random_prime");
+
+        let value: u64 = text(&result).parse().expect("integer");
+        assert!((100..=200).contains(&value));
+        assert!(is_prime_trial_division(value), "{value} is not prime");
+    }
+}
+
+#[test]
+fn random_prime_defaults_and_single_value() {
+    let default = RandomPrimeTool {
+        min: None,
+        max: None,
+    }
+    .call_tool()
+    .expect("random_prime");
+    let value: u64 = text(&default).parse().expect("integer");
+    assert!((2..=1000).contains(&value));
+    assert!(is_prime_trial_division(value));
+
+    let single = RandomPrimeTool {
+        min: Some(7),
+        max: Some(7),
+    }
+    .call_tool()
+    .expect("random_prime");
+    assert_eq!(text(&single), "7");
+}
+
+#[test]
+fn random_prime_wide_range_and_large_value() {
+    let wide = RandomPrimeTool {
+        min: Some(1_000_000),
+        max: Some(1_200_000),
+    }
+    .call_tool()
+    .expect("random_prime");
+    let value: u64 = text(&wide).parse().expect("integer");
+    assert!((1_000_000..=1_200_000).contains(&value));
+    assert!(is_prime_trial_division(value), "{value} is not prime");
+
+    // 2^61 - 1 is a known Mersenne prime.
+    const MERSENNE_61: u64 = (1 << 61) - 1;
+    let large = RandomPrimeTool {
+        min: Some(MERSENNE_61),
+        max: Some(MERSENNE_61),
+    }
+    .call_tool()
+    .expect("random_prime");
+    assert_eq!(text(&large), MERSENNE_61.to_string());
+}
+
+#[test]
+fn random_prime_rejects_invalid_ranges() {
+    // No primes between 24 and 28.
+    assert!(
+        RandomPrimeTool {
+            min: Some(24),
+            max: Some(28),
+        }
+        .call_tool()
+        .is_err()
+    );
+
+    // A single non-prime value.
+    assert!(
+        RandomPrimeTool {
+            min: Some(8),
+            max: Some(8),
+        }
+        .call_tool()
+        .is_err()
+    );
+
+    assert!(
+        RandomPrimeTool {
+            min: Some(10),
+            max: Some(2),
+        }
+        .call_tool()
+        .is_err()
+    );
+
+    assert!(
+        RandomPrimeTool {
+            min: Some(1),
+            max: Some(10),
+        }
+        .call_tool()
+        .is_err()
+    );
 }

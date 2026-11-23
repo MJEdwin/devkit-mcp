@@ -34,7 +34,7 @@ pub fn server_details(transport: &str) -> ServerDetails {
             ..Default::default()
         },
         instructions: Some(
-            "Shared devkit tools: generate_uuid, random_number, random_string, current_time, unix_to_iso8601, iso8601_to_unix, solar_to_lunar_date, lunar_to_solar_date, cron_validate, cron_next, cron_prev, cron_generate, cron_parse, url_encode, url_decode, binary_to_hex, hex_to_binary, binary_to_string, string_to_binary, change_case, naming_case, regex_match, regex_replace, regex_test, json_pretty, json_minify, json_query, json_validate, json_schema_validate, digest, hmac, rsa_encrypt, rsa_decrypt, rsa_sign, rsa_verify, rsa_generate_key, rsa_private_to_public, rsa_convert_private_key, rsa_key_components, aes_encrypt, aes_decrypt, aes_generate_key, aes_generate_iv, des_encrypt, des_decrypt, des_generate_key, des_generate_iv."
+            "Shared devkit tools: generate_uuid, random_number, random_string, random_prime, current_time, unix_to_iso8601, iso8601_to_unix, solar_to_lunar_date, lunar_to_solar_date, cron_validate, cron_next, cron_prev, cron_generate, cron_parse, url_encode, url_decode, binary_to_hex, hex_to_binary, binary_to_string, string_to_binary, change_case, naming_case, regex_match, regex_replace, regex_test, json_pretty, json_minify, json_query, json_validate, json_schema_validate, digest, hmac, rsa_encrypt, rsa_decrypt, rsa_sign, rsa_verify, rsa_generate_key, rsa_private_to_public, rsa_convert_private_key, rsa_key_components, aes_encrypt, aes_decrypt, aes_generate_key, aes_generate_iv, des_encrypt, des_decrypt, des_generate_key, des_generate_iv."
                 .into(),
         ),
         meta: None,

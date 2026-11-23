@@ -14,14 +14,15 @@ Rust workspace with two crates:
 Tools live in `crates/toolkit/src/tools/<category>/`, one file per tool.
 Categories:
 
-- `time` — current time, timestamp, lunar/solar date, and cron conversion
+- `time` — current time, timestamp, lunar/solar date conversion
+- `cron` — cron expression validation, scheduling, parsing, and generation
 - `encoding` — URL / binary / text encodings, case conversion
 - `regex` — regular expression matching and replacement
 - `json` — JSON formatting, querying, and validation
 - `digest` — hashes and HMAC
 - `symmetric` — symmetric encryption (AES, DES/3DES)
 - `rsa` — RSA keys, encryption, signatures
-- `misc` — other generators (UUID, random values)
+- `misc` — other generators (UUID, random values, random primes)
 
 ## Common commands
 
@@ -52,6 +53,7 @@ Test layout:
 crates/toolkit/tests/
 ├── common/mod.rs   # shared helpers (text, base64, RSA test keys)
 ├── time.rs
+├── cron.rs
 ├── encoding.rs
 ├── regex.rs
 ├── json.rs

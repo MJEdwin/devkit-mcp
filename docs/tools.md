@@ -181,7 +181,7 @@ Example: lunar `2024-01-01` (not leap) is `2024-02-10`:
 
 Leap-month example: year `2023`, leap month `2`, day `1` → `2023-03-22`.
 
----
+## Cron
 
 ### cron_validate
 
@@ -1383,3 +1383,28 @@ Example:
 ```
 
 Output: the generated string.
+
+---
+
+### random_prime
+
+Generate a random prime number within an inclusive range.
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `min` | integer (`>= 2`) | no | `2` | Lower bound (inclusive) |
+| `max` | integer (`>= 2`) | no | `1000` | Upper bound (inclusive) |
+
+- Uses the operating system RNG and deterministic Miller–Rabin for `u64`.
+- Ranges up to 100,000 values are scanned and a prime is chosen uniformly;
+  wider ranges use random sampling.
+- Invalid bounds, or a range containing no prime, return `isError: true`.
+
+Examples:
+
+```json
+{ "min": 100, "max": 200 }
+{ "min": 1000000, "max": 1200000 }
+```
+
+Output: the prime as text, e.g. `149`.

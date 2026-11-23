@@ -1,13 +1,14 @@
 //! MCP tools grouped by category:
 //!
-//! - `time`     — current time, timestamp, lunar/solar date, and cron conversion
+//! - `time`     — current time, timestamp, and lunar/solar date conversion
+//! - `cron`     — cron expression validation, scheduling, parsing, and generation
 //! - `encoding` — URL, binary/text encodings, case conversion
 //! - `regex`    — regular expression matching and replacement
 //! - `json`     — JSON formatting, querying, and validation
 //! - `digest`   — hash and HMAC
 //! - `symmetric` — AES / DES encryption/decryption
 //! - `rsa`      — RSA keys, encryption, signatures
-//! - `misc`     — other generators (UUID, random values)
+//! - `misc`     — other generators (UUID, random values, random primes)
 //!
 //! To add a tool:
 //! 1. create `tools/<category>/<tool_name>.rs`
@@ -15,6 +16,7 @@
 //! 3. add the tool type to the `tool_box!` list below
 //! 4. add a match arm in `crate::handler::ToolkitHandler`
 
+pub mod cron;
 pub mod digest;
 pub mod encoding;
 pub mod json;
@@ -24,6 +26,7 @@ pub mod rsa;
 pub mod symmetric;
 pub mod time;
 
+pub use cron::*;
 pub use digest::*;
 pub use encoding::*;
 pub use json::*;
@@ -44,6 +47,7 @@ tool_box!(
         GenerateUuidTool,
         RandomNumberTool,
         RandomStringTool,
+        RandomPrimeTool,
         CurrentTimeTool,
         UnixToIso8601Tool,
         Iso8601ToUnixTool,
@@ -131,11 +135,11 @@ const OUTPUT_SCHEMA_PROVIDERS: &[OutputSchemaProvider] = &[
     rsa::key_components_output_schema,
     time::solar_to_lunar_date_output_schema,
     time::lunar_to_solar_date_output_schema,
-    time::cron_validate_output_schema,
-    time::cron_next_output_schema,
-    time::cron_generate_output_schema,
-    time::cron_parse_output_schema,
-    time::cron_prev_output_schema,
+    cron::cron_validate_output_schema,
+    cron::cron_next_output_schema,
+    cron::cron_generate_output_schema,
+    cron::cron_parse_output_schema,
+    cron::cron_prev_output_schema,
     json::json_validate_output_schema,
     json::json_schema_validate_output_schema,
     json::json_query_output_schema,

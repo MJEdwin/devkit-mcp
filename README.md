@@ -15,6 +15,7 @@ toolkit over **stdio** and **Streamable HTTP**.
 │   │       ├── handler.rs     # ToolkitHandler (shared by both transports)
 │   │       └── tools/         # tool modules grouped by category
 │   │           ├── time/
+│   │           ├── cron/
 │   │           ├── encoding/
 │   │           ├── regex/
 │   │           ├── json/
@@ -224,6 +225,11 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 | `iso8601_to_unix` | ISO 8601 datetime (offset required) → Unix timestamp |
 | `solar_to_lunar_date` | Gregorian date → lunar date, sexagenary year, and zodiac |
 | `lunar_to_solar_date` | Lunar date (year/month/day, leap flag) → Gregorian date |
+
+### Cron
+
+| Tool | Description |
+|---|---|
 | `cron_validate` | Validate a cron expression and describe its schedule |
 | `cron_next` | Compute the next N cron occurrences with a fixed UTC offset |
 | `cron_prev` | Compute the previous N cron occurrences with a fixed UTC offset |
@@ -301,6 +307,7 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 | `generate_uuid` | Generate a UUID v4 or v7, with optional uppercase / hyphen control |
 | `random_number` | Generate a random integer (`decimals: 0`) or float |
 | `random_string` | Generate a random string from a charset |
+| `random_prime` | Generate a random prime within an inclusive range |
 
 Full parameter tables and examples: [`docs/tools.md`](docs/tools.md)
 (English) / [`docs/tools.zh-CN.md`](docs/tools.zh-CN.md) (简体中文).
