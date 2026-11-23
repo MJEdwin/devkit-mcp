@@ -2,8 +2,8 @@ mod common;
 
 use common::{structured, text};
 use toolkit::{
-    CronNextTool, CronTimezone, CronValidateTool, CurrentTimeTool, Iso8601ToUnixTool,
-    LunarToSolarDateTool, SolarToLunarDateTool, TimestampUnit, UnixToIso8601Tool, UtcDateTime,
+    CronNextTool, CronValidateTool, CurrentTimeTool, Iso8601ToUnixTool, LunarToSolarDateTool,
+    SolarToLunarDateTool, TimestampUnit, TimezoneOffset, UnixToIso8601Tool, UtcDateTime,
 };
 
 #[test]
@@ -340,7 +340,7 @@ fn cron_next_utc() {
     .expect("cron_next");
 
     let value = structured(&result);
-    assert_eq!(value["timezone"].as_str(), Some("utc"));
+    assert_eq!(value["timezone"].as_str(), Some("Z"));
     assert_eq!(value["count"].as_u64(), Some(3));
     assert_eq!(
         value["times"],
@@ -358,13 +358,13 @@ fn cron_next_shanghai_and_seconds() {
         expression: "0 9 * * *".to_string(),
         from: Some("2026-01-01T00:00:00+08:00".parse().expect("valid datetime")),
         count: Some(1),
-        timezone: Some(CronTimezone::AsiaShanghai),
+        timezone: Some("+08:00".parse().expect("valid offset")),
     }
     .call_tool()
     .expect("cron_next");
 
     let value = structured(&shanghai);
-    assert_eq!(value["timezone"].as_str(), Some("asia_shanghai"));
+    assert_eq!(value["timezone"].as_str(), Some("+08:00"));
     assert_eq!(
         value["times"],
         serde_json::json!(["2026-01-01T09:00:00+08:00"])
@@ -412,4 +412,49 @@ fn cron_next_rejects_invalid_input() {
         .call_tool()
         .is_err()
     );
+}
+
+#[test]
+fn cron_next_supports_arbitrary_utc_offsets() {
+    let result = CronNextTool {
+        expression: "0 9 * * *".to_string(),
+        from: Some("2026-01-01T00:00:00-05:30".parse().expect("valid datetime")),
+        count: Some(1),
+        timezone: Some("-05:30".parse().expect("valid offset")),
+    }
+    .call_tool()
+    .expect("cron_next");
+
+    let value = structured(&result);
+    assert_eq!(value["timezone"].as_str(), Some("-05:30"));
+    assert_eq!(
+        value["times"],
+        serde_json::json!(["2026-01-01T09:00:00-05:30"])
+    );
+}
+
+#[test]
+fn timezone_offset_parsing() {
+    assert_eq!("Z".parse::<TimezoneOffset>().unwrap().to_string(), "Z");
+    assert_eq!(
+        "+08:00".parse::<TimezoneOffset>().unwrap().to_string(),
+        "+08:00"
+    );
+    assert_eq!(
+        "-05:30".parse::<TimezoneOffset>().unwrap().to_string(),
+        "-05:30"
+    );
+    assert_eq!(
+        "+14:00".parse::<TimezoneOffset>().unwrap().to_string(),
+        "+14:00"
+    );
+    assert_eq!(
+        "-12:00".parse::<TimezoneOffset>().unwrap().to_string(),
+        "-12:00"
+    );
+
+    assert!("+14:30".parse::<TimezoneOffset>().is_err());
+    assert!("-12:30".parse::<TimezoneOffset>().is_err());
+    assert!("+25:00".parse::<TimezoneOffset>().is_err());
+    assert!("not-a-zone".parse::<TimezoneOffset>().is_err());
 }

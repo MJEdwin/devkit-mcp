@@ -6,7 +6,7 @@ mod lunar_to_solar_date;
 mod solar_to_lunar_date;
 mod unix_to_iso8601;
 
-pub use cron_next::{CronNextTool, CronTimezone};
+pub use cron_next::{CronNextTool, TimezoneOffset};
 pub use cron_validate::CronValidateTool;
 pub use current_time::CurrentTimeTool;
 pub use iso8601_to_unix::Iso8601ToUnixTool;

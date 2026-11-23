@@ -215,25 +215,26 @@ Compute the next N execution times for a cron expression.
 | `expression` | string | yes | — | Cron expression (5–7 fields) |
 | `from` | string (`date-time`) | no | now | RFC 3339 start time; results are strictly after it |
 | `count` | integer (`1`–`50`) | no | `5` | Number of occurrences |
-| `timezone` | string (`utc`, `asia_shanghai`) | no | `utc` | Evaluation timezone |
+| `timezone` | string (`±HH:MM` or `Z`) | no | `Z` | Fixed UTC offset |
 
 - Supports 5 fields (`minute hour day month weekday`), 6 fields (leading
   seconds), and 7 fields (seconds plus year).
-- `asia_shanghai` uses a fixed UTC+8 offset (no DST).
+- `timezone` accepts any fixed offset from `-12:00` to `+14:00`, for example
+  `+08:00`, `-05:30`, or `Z`. DST is not applied.
 - Invalid expressions or an expression with no next occurrence return
   `isError: true`.
 
 | Field | Type | Meaning |
 |---|---|---|
-| `timezone` | string | `utc` or `asia_shanghai` |
+| `timezone` | string | Applied UTC offset (`Z` or `±HH:MM`) |
 | `count` | integer | Number of occurrences returned |
-| `times` | array | RFC 3339 timestamps with `Z` or `+08:00` |
+| `times` | array | RFC 3339 timestamps with the applied offset |
 
 Example: expression `0 * * * *`, `from: "2026-01-01T00:00:00Z"`, `count: 3`:
 
 ```json
 {
-  "timezone": "utc",
+  "timezone": "Z",
   "count": 3,
   "times": [
     "2026-01-01T01:00:00Z",

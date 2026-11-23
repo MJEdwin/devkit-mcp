@@ -212,23 +212,24 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 | `expression` | string | 是 | — | cron 表达式（5–7 字段） |
 | `from` | string (`date-time`) | 否 | 当前时间 | RFC 3339 起始时间；结果严格晚于该时间 |
 | `count` | integer (`1`–`50`) | 否 | `5` | 返回的执行次数 |
-| `timezone` | string (`utc`, `asia_shanghai`) | 否 | `utc` | 计算时区 |
+| `timezone` | string (`±HH:MM` 或 `Z`) | 否 | `Z` | 固定 UTC 偏移 |
 
 - 支持 5 字段（分 时 日 月 周）、6 字段（前置秒）和 7 字段（秒 + 年份）
-- `asia_shanghai` 使用固定 UTC+8（无夏令时）
+- `timezone` 支持 `-12:00` 到 `+14:00` 之间的任意固定偏移，例如 `+08:00`、
+  `-05:30` 或 `Z`；不应用夏令时
 - 非法表达式或不存在下一次执行时间时返回 `isError: true`
 
 | 字段 | 类型 | 含义 |
 |---|---|---|
-| `timezone` | string | `utc` 或 `asia_shanghai` |
+| `timezone` | string | 实际使用的 UTC 偏移（`Z` 或 `±HH:MM`） |
 | `count` | integer | 返回的时间数量 |
-| `times` | array | RFC 3339 时间，带 `Z` 或 `+08:00` |
+| `times` | array | RFC 3339 时间，带实际使用的偏移 |
 
 示例：表达式 `0 * * * *`，`from: "2026-01-01T00:00:00Z"`，`count: 3`：
 
 ```json
 {
-  "timezone": "utc",
+  "timezone": "Z",
   "count": 3,
   "times": [
     "2026-01-01T01:00:00Z",
