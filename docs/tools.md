@@ -342,6 +342,105 @@ Examples:
 
 Output: the converted text (`MyVarName`, `http_request`).
 
+## JSON
+
+### json_pretty
+
+Pretty-print a JSON string.
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `json` | string | yes | — | JSON text to format |
+| `indent` | integer (`0`–`8`) | no | `2` | Spaces per indentation level; `0` keeps newlines without indentation |
+| `unicode` | string (`characters`, `escapes`) | no | `characters` | `characters` decodes `\uXXXX` to real characters; `escapes` emits non-ASCII as `\uXXXX` |
+
+- Input is parsed and re-serialized, so object key order is preserved.
+- `unicode: "characters"` (default): decodes `\uXXXX` escape sequences to real
+  UTF-8 characters, e.g. `"你好"` → `"你好"`.
+- `unicode: "escapes"`: emits non-ASCII characters as lowercase `\uXXXX`
+  escapes; code points above U+FFFF use surrogate pairs (e.g. `😀` →
+  `😀`).
+- Invalid JSON returns `isError: true` with the line and column.
+
+Example input:
+
+```json
+{"a":1,"b":[true,null,"你好"]}
+```
+
+Output with defaults:
+
+```json
+{
+  "a": 1,
+  "b": [
+    true,
+    null,
+    "你好"
+  ]
+}
+```
+
+---
+
+### json_validate
+
+Validate whether a string is legal JSON.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `json` | string | yes | JSON text to validate |
+
+The result is returned both as pretty-printed JSON text and as
+`structuredContent`; the tool also declares an `outputSchema` in `tools/list`.
+Invalid JSON is a normal result (`valid: false`), not an `isError`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `valid` | boolean | Whether the input is legal JSON |
+| `line` | integer \| null | 1-based error line, or `null` when valid |
+| `column` | integer \| null | 1-based error column, or `null` when valid |
+| `error` | string \| null | Parser error message, or `null` when valid |
+
+Example for `{"a":}`:
+
+```json
+{
+  "valid": false,
+  "line": 1,
+  "column": 6,
+  "error": "expected value"
+}
+```
+
+---
+
+### json_schema_validate
+
+Validate a JSON document against a JSON Schema.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `json` | string | yes | JSON text to validate |
+| `json_schema` | any | yes | JSON Schema (object/boolean, or a JSON-encoded string) |
+
+The schema and the JSON are both parsed first; invalid JSON or an invalid
+schema returns `isError: true`. Schema violations are a normal result
+(`valid: false`).
+
+The result is returned both as pretty-printed JSON text and as
+`structuredContent`; the tool also declares an `outputSchema` in `tools/list`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `valid` | boolean | Whether the JSON conforms to the schema |
+| `schema_errors` | array | Schema violations (up to 100), each with `path`, `schema_path`, and `message` |
+
+Example: validating `{"age": 42}` against
+`{"type":"object","properties":{"age":{"type":"integer"}},"required":["age"]}`
+returns `valid: true` and an empty `schema_errors`. `{"age": "old"}` returns a
+`schema_errors` entry with `path: "/age"`.
+
 ## Digest
 
 ### digest

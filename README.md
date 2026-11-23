@@ -16,6 +16,7 @@ toolkit over **stdio** and **Streamable HTTP**.
 │   │       └── tools/         # tool modules grouped by category
 │   │           ├── time/
 │   │           ├── encoding/
+│   │           ├── json/
 │   │           ├── digest/
 │   │           ├── symmetric/
 │   │           ├── rsa/
@@ -235,6 +236,14 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 | `string_to_binary` | Text → base64 binary (same encodings) |
 | `change_case` | Convert text between lowercase, uppercase, and title case |
 | `naming_case` | Convert between PascalCase / camelCase / lower_snake / UPPER_SNAKE |
+
+### JSON
+
+| Tool | Description |
+|---|---|
+| `json_pretty` | Pretty-print JSON with indent and `\uXXXX` decoding/escaping |
+| `json_validate` | Validate JSON syntax and report line/column/reason |
+| `json_schema_validate` | Validate JSON against a JSON Schema |
 
 ### Digest
 

@@ -1,7 +1,8 @@
 //! MCP tools grouped by category:
 //!
 //! - `time`     — current time, timestamp, and lunar/solar date conversion
-//! - `encoding` — URL, binary/text encodings, and case conversion
+//! - `encoding` — URL, binary/text encodings, case conversion
+//! - `json`     — JSON formatting and validation
 //! - `digest`   — hash and HMAC
 //! - `symmetric` — AES / DES encryption/decryption
 //! - `rsa`      — RSA keys, encryption, signatures
@@ -15,6 +16,7 @@
 
 pub mod digest;
 pub mod encoding;
+pub mod json;
 pub mod misc;
 pub mod rsa;
 pub mod symmetric;
@@ -22,6 +24,7 @@ pub mod time;
 
 pub use digest::*;
 pub use encoding::*;
+pub use json::*;
 pub use misc::*;
 pub use rsa::*;
 pub use symmetric::*;
@@ -51,6 +54,9 @@ tool_box!(
         StringToBinaryTool,
         ChangeCaseTool,
         NamingCaseTool,
+        JsonPrettyTool,
+        JsonValidateTool,
+        JsonSchemaValidateTool,
         DigestTool,
         HmacTool,
         RsaEncryptTool,
@@ -112,4 +118,6 @@ const OUTPUT_SCHEMA_PROVIDERS: &[OutputSchemaProvider] = &[
     rsa::key_components_output_schema,
     time::solar_to_lunar_date_output_schema,
     time::lunar_to_solar_date_output_schema,
+    json::json_validate_output_schema,
+    json::json_schema_validate_output_schema,
 ];

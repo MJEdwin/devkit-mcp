@@ -28,19 +28,23 @@
 
 ## 2. JSON 工具（json）
 
-建议放在 `crates/toolkit/src/tools/encoding/`。
+放在 `crates/toolkit/src/tools/json/`。
 
-- [ ] `json_format`
-  - 格式化 JSON
-  - 参数：`json`，可选 `indent`（`2` / `4` / `tab`，默认 `2`）
-  - 返回：格式化后的文本
+- [x] `json_pretty`（已实现）
+  - 格式化 JSON，保留键顺序
+  - 参数：`json`、可选 `indent`（`0`–`8`，默认 `2`）、`unicode`（`characters` / `escapes`）
+  - 支持 `\uXXXX` 解码为真实字符，也支持转义输出与代理对
 - [ ] `json_minify`
   - 压缩 JSON（移除无意义空白）
   - 参数：`json`
-- [ ] `json_validate`
-  - 校验 JSON 并返回解析结果摘要
+- [x] `json_validate`（已实现）
+  - 校验 JSON 语法
   - 参数：`json`
-  - 返回：`valid`、`error`（无效时）、顶层类型
+  - 返回：`valid`、`line`、`column`、`error`
+- [x] `json_schema_validate`（已实现）
+  - 按 JSON Schema 校验 JSON
+  - 参数：`json`、`json_schema`
+  - 返回：`valid`、`schema_errors`
 - [ ] 可选：`json_query`
   - 简单路径查询（如 `a.b[0].c`），暂不引入 JSONPath
 

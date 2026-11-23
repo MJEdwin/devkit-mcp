@@ -340,6 +340,103 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 
 输出：转换后的文本（`MyVarName`、`http_request`）。
 
+## JSON
+
+### json_pretty
+
+格式化（美化）JSON 字符串。
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|---|---|---|---|---|
+| `json` | string | 是 | — | 要格式化的 JSON 文本 |
+| `indent` | integer (`0`–`8`) | 否 | `2` | 每级缩进的空格数；`0` 表示只换行不缩进 |
+| `unicode` | string (`characters`, `escapes`) | 否 | `characters` | `characters` 把 `\uXXXX` 解码为真实字符；`escapes` 把非 ASCII 转义为 `\uXXXX` |
+
+- 输入会先解析再重新序列化，因此对象键顺序会被保留。
+- `unicode: "characters"`（默认）：把 `\uXXXX` 转义序列解码为真实 UTF-8
+  字符，例如 `"你好"` → `"你好"`。
+- `unicode: "escapes"`：非 ASCII 字符输出为小写 `\uXXXX`；超出 U+FFFF 的
+  码点使用代理对（例如 `😀` → `😀`）。
+- 非法 JSON 返回 `isError: true`，并包含出错行列。
+
+输入示例：
+
+```json
+{"a":1,"b":[true,null,"你好"]}
+```
+
+默认参数输出：
+
+```json
+{
+  "a": 1,
+  "b": [
+    true,
+    null,
+    "你好"
+  ]
+}
+```
+
+---
+
+### json_validate
+
+校验字符串是否为合法 JSON。
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `json` | string | 是 | 要校验的 JSON 文本 |
+
+结果会同时以美化后的 JSON 文本和 `structuredContent` 返回；该工具还会在
+`tools/list` 中声明 `outputSchema`。无效 JSON 属于正常结果（`valid: false`），
+不会标记为 `isError`。
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `valid` | boolean | 是否为合法 JSON |
+| `line` | integer \| null | 错误所在的 1-based 行号；合法时为 `null` |
+| `column` | integer \| null | 错误所在的 1-based 列号；合法时为 `null` |
+| `error` | string \| null | 解析错误信息；合法时为 `null` |
+
+`{"a":}` 的返回示例：
+
+```json
+{
+  "valid": false,
+  "line": 1,
+  "column": 6,
+  "error": "expected value"
+}
+```
+
+---
+
+### json_schema_validate
+
+按 JSON Schema 校验 JSON 文档。
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `json` | string | 是 | 要校验的 JSON 文本 |
+| `json_schema` | any | 是 | JSON Schema（对象/布尔值，或 JSON 编码字符串） |
+
+会先解析 schema 和 JSON；JSON 或 schema 本身不合法时返回 `isError: true`。
+schema 不匹配属于正常结果（`valid: false`）。
+
+结果会同时以美化后的 JSON 文本和 `structuredContent` 返回；该工具还会在
+`tools/list` 中声明 `outputSchema`。
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `valid` | boolean | JSON 是否符合 schema |
+| `schema_errors` | array | schema 校验错误（最多 100 条），包含 `path`、`schema_path`、`message` |
+
+示例：用
+`{"type":"object","properties":{"age":{"type":"integer"}},"required":["age"]}`
+校验 `{"age": 42}`，返回 `valid: true` 和空的 `schema_errors`；
+`{"age": "old"}` 会在 `schema_errors` 中返回 `path: "/age"` 的错误。
+
 ## 摘要（Digest）
 
 ### digest
