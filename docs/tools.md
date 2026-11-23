@@ -383,6 +383,82 @@ Output with defaults:
 
 ---
 
+### json_minify
+
+Minify a JSON string.
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `json` | string | yes | — | JSON text to minify |
+| `unicode` | string (`characters`, `escapes`) | no | `characters` | `characters` keeps real UTF-8 characters; `escapes` emits non-ASCII as `\uXXXX` |
+
+- Removes all insignificant whitespace.
+- Object key order is preserved.
+- Invalid JSON returns `isError: true` with the line and column.
+- With `unicode: "escapes"`, code points above U+FFFF use surrogate pairs
+  (e.g. `😀` → `😀`).
+
+Example input:
+
+```json
+{
+  "a": 1,
+  "b": [true, null, "你好"]
+}
+```
+
+Output:
+
+```json
+{"a":1,"b":[true,null,"你好"]}
+```
+
+---
+
+### json_query
+
+Query a JSON document with a JSONPath expression (RFC 9535).
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `json` | string | yes | — | JSON text to query |
+| `path` | string | yes | — | JSONPath expression, e.g. `$.store.book[*].title` |
+| `limit` | integer (`1`–`1000`) | no | `100` | Maximum number of matches to return |
+
+- Supports RFC 9535 selectors: child (`$.a`), wildcard (`$.*`, `$[*]`),
+  recursive descent (`$..price`), slices, unions, and filters
+  (`[?(@.price > 10)]`).
+- Invalid JSON or an invalid JSONPath returns `isError: true`.
+- The result is returned both as pretty-printed JSON text and as
+  `structuredContent`; the tool also declares an `outputSchema`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `count` | integer | Number of matches returned |
+| `truncated` | boolean | Whether more matches existed than `limit` |
+| `matches` | array | Matched JSON values |
+
+Example:
+
+```json
+{
+  "json": "{\"store\":{\"book\":[{\"title\":\"A\"},{\"title\":\"B\"}]}}",
+  "path": "$.store.book[*].title"
+}
+```
+
+Output:
+
+```json
+{
+  "count": 2,
+  "truncated": false,
+  "matches": ["A", "B"]
+}
+```
+
+---
+
 ### json_validate
 
 Validate whether a string is legal JSON.

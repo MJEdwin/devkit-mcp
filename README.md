@@ -242,6 +242,8 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 | Tool | Description |
 |---|---|
 | `json_pretty` | Pretty-print JSON with indent and `\uXXXX` decoding/escaping |
+| `json_minify` | Minify JSON, optionally escaping non-ASCII characters |
+| `json_query` | Query JSON with JSONPath (RFC 9535) |
 | `json_validate` | Validate JSON syntax and report line/column/reason |
 | `json_schema_validate` | Validate JSON against a JSON Schema |
 

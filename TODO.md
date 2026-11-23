@@ -34,9 +34,9 @@
   - 格式化 JSON，保留键顺序
   - 参数：`json`、可选 `indent`（`0`–`8`，默认 `2`）、`unicode`（`characters` / `escapes`）
   - 支持 `\uXXXX` 解码为真实字符，也支持转义输出与代理对
-- [ ] `json_minify`
-  - 压缩 JSON（移除无意义空白）
-  - 参数：`json`
+- [x] `json_minify`（已实现）
+  - 压缩 JSON，保留键顺序
+  - 参数：`json`、可选 `unicode`（`characters` / `escapes`）
 - [x] `json_validate`（已实现）
   - 校验 JSON 语法
   - 参数：`json`
@@ -45,8 +45,10 @@
   - 按 JSON Schema 校验 JSON
   - 参数：`json`、`json_schema`
   - 返回：`valid`、`schema_errors`
-- [ ] 可选：`json_query`
-  - 简单路径查询（如 `a.b[0].c`），暂不引入 JSONPath
+- [x] `json_query`（已实现）
+  - 使用 JSONPath（RFC 9535）查询
+  - 参数：`json`、`path`、可选 `limit`
+  - 返回：`count`、`truncated`、`matches`
 
 约束与注意：
 

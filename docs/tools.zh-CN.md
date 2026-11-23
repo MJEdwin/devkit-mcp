@@ -380,6 +380,81 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 
 ---
 
+### json_minify
+
+压缩 JSON 字符串。
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|---|---|---|---|---|
+| `json` | string | 是 | — | 要压缩的 JSON 文本 |
+| `unicode` | string (`characters`, `escapes`) | 否 | `characters` | `characters` 保留真实 UTF-8 字符；`escapes` 把非 ASCII 转义为 `\uXXXX` |
+
+- 移除所有无意义空白
+- 保留对象键顺序
+- 非法 JSON 返回 `isError: true`，并包含行列
+- `unicode: "escapes"` 时，超出 U+FFFF 的码点使用代理对
+  （例如 `😀` → `😀`）
+
+输入示例：
+
+```json
+{
+  "a": 1,
+  "b": [true, null, "你好"]
+}
+```
+
+输出：
+
+```json
+{"a":1,"b":[true,null,"你好"]}
+```
+
+---
+
+### json_query
+
+使用 JSONPath 表达式（RFC 9535）查询 JSON 文档。
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|---|---|---|---|---|
+| `json` | string | 是 | — | 要查询的 JSON 文本 |
+| `path` | string | 是 | — | JSONPath 表达式，例如 `$.store.book[*].title` |
+| `limit` | integer (`1`–`1000`) | 否 | `100` | 最多返回的匹配数量 |
+
+- 支持 RFC 9535 选择器：子节点（`$.a`）、通配（`$.*`、`$[*]`）、递归下降
+  （`$..price`）、切片、联合以及过滤（`[?(@.price > 10)]`）
+- JSON 非法或 JSONPath 非法时返回 `isError: true`
+- 结果会同时以美化后的 JSON 文本和 `structuredContent` 返回；该工具还会在
+  `tools/list` 中声明 `outputSchema`
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `count` | integer | 返回的匹配数量 |
+| `truncated` | boolean | 匹配数量是否超过 `limit` |
+| `matches` | array | 匹配到的 JSON 值 |
+
+示例：
+
+```json
+{
+  "json": "{\"store\":{\"book\":[{\"title\":\"A\"},{\"title\":\"B\"}]}}",
+  "path": "$.store.book[*].title"
+}
+```
+
+输出：
+
+```json
+{
+  "count": 2,
+  "truncated": false,
+  "matches": ["A", "B"]
+}
+```
+
+---
+
 ### json_validate
 
 校验字符串是否为合法 JSON。

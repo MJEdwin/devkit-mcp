@@ -2,7 +2,7 @@
 //!
 //! - `time`     — current time, timestamp, and lunar/solar date conversion
 //! - `encoding` — URL, binary/text encodings, case conversion
-//! - `json`     — JSON formatting and validation
+//! - `json`     — JSON formatting, querying, and validation
 //! - `digest`   — hash and HMAC
 //! - `symmetric` — AES / DES encryption/decryption
 //! - `rsa`      — RSA keys, encryption, signatures
@@ -55,6 +55,8 @@ tool_box!(
         ChangeCaseTool,
         NamingCaseTool,
         JsonPrettyTool,
+        JsonMinifyTool,
+        JsonQueryTool,
         JsonValidateTool,
         JsonSchemaValidateTool,
         DigestTool,
@@ -120,4 +122,5 @@ const OUTPUT_SCHEMA_PROVIDERS: &[OutputSchemaProvider] = &[
     time::lunar_to_solar_date_output_schema,
     json::json_validate_output_schema,
     json::json_schema_validate_output_schema,
+    json::json_query_output_schema,
 ];

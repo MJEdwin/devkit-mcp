@@ -16,7 +16,7 @@ Categories:
 
 - `time` — current time, timestamp conversion, lunar/solar date conversion
 - `encoding` — URL / binary / text encodings, case conversion
-- `json` — JSON formatting and validation
+- `json` — JSON formatting, querying, and validation
 - `digest` — hashes and HMAC
 - `symmetric` — symmetric encryption (AES, DES/3DES)
 - `rsa` — RSA keys, encryption, signatures

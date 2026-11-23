@@ -61,6 +61,8 @@ impl ServerHandler for ToolkitHandler {
             ToolkitTools::ChangeCaseTool(tool) => tool.call_tool()?,
             ToolkitTools::NamingCaseTool(tool) => tool.call_tool()?,
             ToolkitTools::JsonPrettyTool(tool) => tool.call_tool()?,
+            ToolkitTools::JsonMinifyTool(tool) => tool.call_tool()?,
+            ToolkitTools::JsonQueryTool(tool) => tool.call_tool()?,
             ToolkitTools::JsonValidateTool(tool) => tool.call_tool()?,
             ToolkitTools::JsonSchemaValidateTool(tool) => tool.call_tool()?,
             ToolkitTools::DigestTool(tool) => tool.call_tool()?,

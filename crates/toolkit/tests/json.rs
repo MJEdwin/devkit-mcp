@@ -1,7 +1,10 @@
 mod common;
 
 use common::{structured, text};
-use toolkit::{JsonPrettyTool, JsonSchemaValidateTool, JsonValidateTool, UnicodeMode};
+use toolkit::{
+    JsonMinifyTool, JsonPrettyTool, JsonQueryTool, JsonSchemaValidateTool, JsonValidateTool,
+    UnicodeMode,
+};
 
 #[test]
 fn json_pretty_formats_with_default_indent() {
@@ -282,4 +285,174 @@ fn json_schema_validate_rejects_invalid_json() {
     .call_tool();
 
     assert!(result.is_err());
+}
+
+#[test]
+fn json_minify_removes_whitespace() {
+    let result = JsonMinifyTool {
+        json: "{\n  \"a\": 1,\n  \"b\": [true, null, \"x\"]\n}".to_string(),
+        unicode: None,
+    }
+    .call_tool()
+    .expect("json_minify");
+
+    assert_eq!(text(&result), r#"{"a":1,"b":[true,null,"x"]}"#);
+}
+
+#[test]
+fn json_minify_preserves_key_order() {
+    let result = JsonMinifyTool {
+        json: r#"{ "z": 1, "a": 2, "m": 3 }"#.to_string(),
+        unicode: None,
+    }
+    .call_tool()
+    .expect("json_minify");
+
+    assert_eq!(text(&result), r#"{"z":1,"a":2,"m":3}"#);
+}
+
+#[test]
+fn json_minify_unicode_modes() {
+    let input = r#"{"msg":"你好","emoji":"😀"}"#;
+
+    let default = JsonMinifyTool {
+        json: input.to_string(),
+        unicode: None,
+    }
+    .call_tool()
+    .expect("json_minify");
+    assert!(text(&default).contains("你好"));
+    assert!(!text(&default).contains('\n'));
+
+    let escaped = JsonMinifyTool {
+        json: input.to_string(),
+        unicode: Some(UnicodeMode::Escapes),
+    }
+    .call_tool()
+    .expect("json_minify");
+    assert!(text(&escaped).contains("\\u4f60\\u597d"));
+    assert!(text(&escaped).contains("\\ud83d\\ude00"));
+
+    let parsed: serde_json::Value = serde_json::from_str(text(&escaped)).expect("valid JSON");
+    let original: serde_json::Value = serde_json::from_str(input).expect("valid JSON");
+    assert_eq!(parsed, original);
+}
+
+#[test]
+fn json_minify_rejects_invalid_input() {
+    let result = JsonMinifyTool {
+        json: "{".to_string(),
+        unicode: None,
+    }
+    .call_tool();
+
+    assert!(result.is_err());
+}
+
+#[test]
+fn json_query_selects_values() {
+    let result = JsonQueryTool {
+        json: r#"{"store":{"book":[{"title":"A","price":10},{"title":"B","price":20}]}}"#
+            .to_string(),
+        path: "$.store.book[*].title".to_string(),
+        limit: None,
+    }
+    .call_tool()
+    .expect("json_query");
+
+    let value = structured(&result);
+    assert_eq!(value["count"].as_u64(), Some(2));
+    assert_eq!(value["truncated"].as_bool(), Some(false));
+    assert_eq!(value["matches"], serde_json::json!(["A", "B"]));
+
+    let pretty = serde_json::to_string_pretty(value).expect("serialize");
+    assert_eq!(text(&result), pretty);
+}
+
+#[test]
+fn json_query_supports_filters_and_recursion() {
+    let input = r#"{"store":{"book":[{"title":"A","price":10},{"title":"B","price":20}]}}"#;
+
+    let filtered = JsonQueryTool {
+        json: input.to_string(),
+        path: "$.store.book[?(@.price > 15)].title".to_string(),
+        limit: None,
+    }
+    .call_tool()
+    .expect("json_query");
+    assert_eq!(structured(&filtered)["matches"], serde_json::json!(["B"]));
+
+    let prices = JsonQueryTool {
+        json: input.to_string(),
+        path: "$..price".to_string(),
+        limit: None,
+    }
+    .call_tool()
+    .expect("json_query");
+    assert_eq!(structured(&prices)["matches"], serde_json::json!([10, 20]));
+}
+
+#[test]
+fn json_query_no_matches() {
+    let result = JsonQueryTool {
+        json: r#"{"a":1}"#.to_string(),
+        path: "$.missing".to_string(),
+        limit: None,
+    }
+    .call_tool()
+    .expect("json_query");
+
+    let value = structured(&result);
+    assert_eq!(value["count"].as_u64(), Some(0));
+    assert_eq!(value["truncated"].as_bool(), Some(false));
+    assert_eq!(value["matches"], serde_json::json!([]));
+}
+
+#[test]
+fn json_query_truncates_at_limit() {
+    let result = JsonQueryTool {
+        json: r#"{"a":1,"b":2,"c":3}"#.to_string(),
+        path: "$.*".to_string(),
+        limit: Some(2),
+    }
+    .call_tool()
+    .expect("json_query");
+
+    let value = structured(&result);
+    assert_eq!(value["count"].as_u64(), Some(2));
+    assert_eq!(value["truncated"].as_bool(), Some(true));
+    assert_eq!(value["matches"], serde_json::json!([1, 2]));
+}
+
+#[test]
+fn json_query_rejects_invalid_input() {
+    assert!(
+        JsonQueryTool {
+            json: "{".to_string(),
+            path: "$".to_string(),
+            limit: None,
+        }
+        .call_tool()
+        .is_err()
+    );
+
+    assert!(
+        JsonQueryTool {
+            json: "{}".to_string(),
+            path: "$[".to_string(),
+            limit: None,
+        }
+        .call_tool()
+        .is_err()
+    );
+
+    assert!(
+        JsonQueryTool {
+            json: "{}".to_string(),
+            path: "$".to_string(),
+            limit: Some(0),
+        }
+        .call_tool()
+        .is_err()
+    );
 }
