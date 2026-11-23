@@ -2759,6 +2759,7 @@ dependencies = [
  "md-5",
  "ofb",
  "percent-encoding",
+ "regex",
  "rsa",
  "rust-mcp-sdk",
  "serde",

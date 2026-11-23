@@ -16,6 +16,7 @@ Categories:
 
 - `time` — current time, timestamp conversion, lunar/solar date conversion
 - `encoding` — URL / binary / text encodings, case conversion
+- `regex` — regular expression matching and replacement
 - `json` — JSON formatting, querying, and validation
 - `digest` — hashes and HMAC
 - `symmetric` — symmetric encryption (AES, DES/3DES)
@@ -52,6 +53,7 @@ crates/toolkit/tests/
 ├── common/mod.rs   # shared helpers (text, base64, RSA test keys)
 ├── time.rs
 ├── encoding.rs
+├── regex.rs
 ├── json.rs
 ├── digest.rs
 ├── symmetric.rs

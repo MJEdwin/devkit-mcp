@@ -340,6 +340,75 @@ curl -sS -X POST http://127.0.0.1:8080/mcp \
 
 输出：转换后的文本（`MyVarName`、`http_request`）。
 
+## 正则（Regex）
+
+### regex_match
+
+查找文本中所有不重叠的正则匹配。
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|---|---|---|---|---|
+| `pattern` | string | 是 | — | Rust `regex` 语法（不支持反向引用和环视） |
+| `text` | string | 是 | — | 要搜索的文本 |
+| `limit` | integer (`1`–`1000`) | 否 | `100` | 最多返回的匹配数量 |
+| `case_insensitive` | boolean | 否 | `false` | 是否忽略大小写 |
+
+结果会同时以美化后的 JSON 文本和 `structuredContent` 返回；该工具还会在
+`tools/list` 中声明 `outputSchema`。
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `count` | integer | 返回的匹配数 |
+| `truncated` | boolean | 是否还有超过 `limit` 的匹配 |
+| `matches` | array | 每项包含 `text`、`start`、`end`、`groups`、`named_groups` |
+
+`start` / `end` 是 UTF-8 字节偏移；`groups` 是第 1..N 个捕获组（未匹配时为
+`null`）。
+
+示例：
+
+```json
+{ "pattern": "(\\w+)-(\\d+)", "text": "abc-123 def-456" }
+```
+
+返回两个匹配：`abc-123`（捕获组 `["abc", "123"]`）和 `def-456`。
+
+---
+
+### regex_replace
+
+替换文本中的正则匹配。
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|---|---|---|---|---|
+| `pattern` | string | 是 | — | Rust `regex` 语法 |
+| `text` | string | 是 | — | 要转换的文本 |
+| `replacement` | string | 是 | — | 支持 `$1`、`${name}`，`$$` 表示字面量 `$` |
+| `limit` | integer (`0`–`10000`) | 否 | `0` | 最多替换次数；`0` 表示全部替换 |
+| `case_insensitive` | boolean | 否 | `false` | 是否忽略大小写 |
+
+返回：`{ "result": "...", "replacements": N }`。
+
+示例：pattern `(\w+)-(\d+)`、text `abc-123`、replacement `$2:$1` →
+`123:abc`。
+
+---
+
+### regex_test
+
+测试文本是否匹配正则。
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|---|---|---|---|---|
+| `pattern` | string | 是 | — | Rust `regex` 语法 |
+| `text` | string | 是 | — | 要测试的文本 |
+| `case_insensitive` | boolean | 否 | `false` | 是否忽略大小写 |
+
+返回：`{ "matched": bool, "match": ... | null }`；`match` 是第一个匹配的
+详情（`text`、`start`、`end`、`groups`、`named_groups`）。
+
+三个工具在正则非法时都会返回 `isError: true`。
+
 ## JSON
 
 ### json_pretty

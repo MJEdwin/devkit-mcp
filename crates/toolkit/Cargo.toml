@@ -26,6 +26,7 @@ lunar-lite.workspace = true
 md-5.workspace = true
 ofb.workspace = true
 percent-encoding.workspace = true
+regex.workspace = true
 rsa.workspace = true
 rust-mcp-sdk.workspace = true
 serde.workspace = true

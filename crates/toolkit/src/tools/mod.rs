@@ -2,6 +2,7 @@
 //!
 //! - `time`     — current time, timestamp, and lunar/solar date conversion
 //! - `encoding` — URL, binary/text encodings, case conversion
+//! - `regex`    — regular expression matching and replacement
 //! - `json`     — JSON formatting, querying, and validation
 //! - `digest`   — hash and HMAC
 //! - `symmetric` — AES / DES encryption/decryption
@@ -18,6 +19,7 @@ pub mod digest;
 pub mod encoding;
 pub mod json;
 pub mod misc;
+pub mod regex;
 pub mod rsa;
 pub mod symmetric;
 pub mod time;
@@ -26,6 +28,7 @@ pub use digest::*;
 pub use encoding::*;
 pub use json::*;
 pub use misc::*;
+pub use regex::*;
 pub use rsa::*;
 pub use symmetric::*;
 pub use time::*;
@@ -54,6 +57,9 @@ tool_box!(
         StringToBinaryTool,
         ChangeCaseTool,
         NamingCaseTool,
+        RegexMatchTool,
+        RegexReplaceTool,
+        RegexTestTool,
         JsonPrettyTool,
         JsonMinifyTool,
         JsonQueryTool,
@@ -123,4 +129,7 @@ const OUTPUT_SCHEMA_PROVIDERS: &[OutputSchemaProvider] = &[
     json::json_validate_output_schema,
     json::json_schema_validate_output_schema,
     json::json_query_output_schema,
+    regex::regex_match_output_schema,
+    regex::regex_replace_output_schema,
+    regex::regex_test_output_schema,
 ];

@@ -4,20 +4,20 @@
 
 ## 1. 正则工具（regex）
 
-建议放在 `crates/toolkit/src/tools/encoding/`。
+放在 `crates/toolkit/src/tools/regex/`。
 
-- [ ] `regex_match`
-  - 递归匹配 `pattern`，返回所有匹配项
-  - 参数：`pattern`、`text`，可选 `limit`（默认 100，最大 1000）、`case_insensitive`
-  - 返回：JSON 数组，包含匹配文本、起止位置、捕获组
-- [ ] `regex_replace`
+- [x] `regex_match`（已实现）
+  - 返回所有匹配项
+  - 参数：`pattern`、`text`、可选 `limit`、`case_insensitive`
+  - 返回：`count`、`truncated`、`matches`（文本、字节偏移、捕获组、命名捕获组）
+- [x] `regex_replace`（已实现）
   - 按正则替换文本
-  - 参数：`pattern`、`text`、`replacement`（支持 `$1` / `${name}`），可选 `limit`
-  - 返回：替换后的文本和替换次数
-- [ ] `regex_test`
-  - 判断是否匹配，并返回第一个匹配的捕获组
-  - 参数：`pattern`、`text`
-  - 返回：`matched: bool`、`groups`
+  - 参数：`pattern`、`text`、`replacement`、可选 `limit`、`case_insensitive`
+  - 返回：`result`、`replacements`
+- [x] `regex_test`（已实现）
+  - 判断是否匹配，并返回第一个匹配的详情
+  - 参数：`pattern`、`text`、可选 `case_insensitive`
+  - 返回：`matched`、`match`
 
 约束与注意：
 

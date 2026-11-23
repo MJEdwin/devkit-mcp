@@ -16,6 +16,7 @@ toolkit over **stdio** and **Streamable HTTP**.
 │   │       └── tools/         # tool modules grouped by category
 │   │           ├── time/
 │   │           ├── encoding/
+│   │           ├── regex/
 │   │           ├── json/
 │   │           ├── digest/
 │   │           ├── symmetric/
@@ -236,6 +237,14 @@ Clients that only speak the 2025 `initialize` flow cannot connect.
 | `string_to_binary` | Text → base64 binary (same encodings) |
 | `change_case` | Convert text between lowercase, uppercase, and title case |
 | `naming_case` | Convert between PascalCase / camelCase / lower_snake / UPPER_SNAKE |
+
+### Regex
+
+| Tool | Description |
+|---|---|
+| `regex_match` | Find regex matches with groups and byte offsets |
+| `regex_replace` | Replace regex matches with `$1` / `${name}` expansion |
+| `regex_test` | Test a regex and return the first match |
 
 ### JSON
 

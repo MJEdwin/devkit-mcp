@@ -342,6 +342,74 @@ Examples:
 
 Output: the converted text (`MyVarName`, `http_request`).
 
+## Regex
+
+### regex_match
+
+Find all non-overlapping regex matches in text.
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `pattern` | string | yes | — | Rust `regex` syntax (no backreferences or look-around) |
+| `text` | string | yes | — | Text to search |
+| `limit` | integer (`1`–`1000`) | no | `100` | Maximum matches to return |
+| `case_insensitive` | boolean | no | `false` | Case-insensitive matching |
+
+The result is returned both as pretty-printed JSON text and as
+`structuredContent`; the tool also declares an `outputSchema`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `count` | integer | Matches returned |
+| `truncated` | boolean | Whether more matches existed than `limit` |
+| `matches` | array | Each with `text`, `start`, `end`, `groups`, and `named_groups` |
+
+`start` / `end` are UTF-8 byte offsets; `groups` contains capture groups 1..N
+(`null` for unmatched optional groups).
+
+Example:
+
+```json
+{ "pattern": "(\\w+)-(\\d+)", "text": "abc-123 def-456" }
+```
+
+Returns two matches: `abc-123` (groups `["abc", "123"]`) and `def-456`.
+
+---
+
+### regex_replace
+
+Replace regex matches in text.
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `pattern` | string | yes | — | Rust `regex` syntax |
+| `text` | string | yes | — | Text to transform |
+| `replacement` | string | yes | — | Supports `$1`, `${name}`, and `$$` for a literal `$` |
+| `limit` | integer (`0`–`10000`) | no | `0` | Maximum replacements; `0` = replace all |
+| `case_insensitive` | boolean | no | `false` | Case-insensitive matching |
+
+Result: `{ "result": "...", "replacements": N }`.
+
+Example: pattern `(\w+)-(\d+)`, text `abc-123`, replacement `$2:$1` → `123:abc`.
+
+---
+
+### regex_test
+
+Test whether text matches a regex.
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `pattern` | string | yes | — | Rust `regex` syntax |
+| `text` | string | yes | — | Text to test |
+| `case_insensitive` | boolean | no | `false` | Case-insensitive matching |
+
+Result: `{ "matched": bool, "match": ... | null }`; `match` contains the first
+match details (`text`, `start`, `end`, `groups`, `named_groups`).
+
+Invalid regexes return `isError: true` for all three tools.
+
 ## JSON
 
 ### json_pretty
