@@ -1,3 +1,5 @@
+**English** | [简体中文](README.zh-CN.md)
+
 # devkit-mcp
 
 A small [MCP](https://modelcontextprotocol.io/) server exposing a shared Rust
