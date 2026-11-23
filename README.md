@@ -76,7 +76,86 @@ RUST_LOG=info  cargo run -p cli -- remote          # request summaries
 RUST_LOG=trace cargo run -p cli -- remote          # full JSON payloads
 ```
 
-## Connecting a client
+## Connecting a local client
+
+Build the binary first, then use its **absolute path** in client
+configuration files:
+
+```bash
+cargo build --release
+# or: ./scripts/build-local.sh
+# binary: /absolute/path/to/devkit-mcp/target/release/devkit-mcp
+```
+
+### stdio (recommended for local clients)
+
+The client starts the server and communicates over stdin/stdout.
+
+Claude Code:
+
+```bash
+claude mcp add devkit-mcp -- \
+  /absolute/path/to/devkit-mcp/target/release/devkit-mcp local
+claude mcp list
+```
+
+Project `.mcp.json` (Claude Code):
+
+```json
+{
+  "mcpServers": {
+    "devkit-mcp": {
+      "type": "stdio",
+      "command": "/absolute/path/to/devkit-mcp/target/release/devkit-mcp",
+      "args": ["local"]
+    }
+  }
+}
+```
+
+Claude Desktop (`claude_desktop_config.json`):
+
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "devkit-mcp": {
+      "command": "/absolute/path/to/devkit-mcp/target/release/devkit-mcp",
+      "args": ["local"]
+    }
+  }
+}
+```
+
+On Windows, use `...\target\release\devkit-mcp.exe` and escape backslashes in
+JSON (e.g. `C:\\tools\\devkit-mcp.exe`). Other stdio clients can use the same
+`command` / `args` pair.
+
+For development you can also let the client run Cargo directly (if the client
+supports `cwd`):
+
+```json
+{
+  "mcpServers": {
+    "devkit-mcp-dev": {
+      "type": "stdio",
+      "command": "cargo",
+      "args": ["run", "-p", "cli", "--", "local"],
+      "cwd": "/absolute/path/to/devkit-mcp"
+    }
+  }
+}
+```
+
+### Streamable HTTP (local server)
+
+Start the server in a terminal:
+
+```bash
+./target/release/devkit-mcp remote --host 127.0.0.1 --port 8080
+```
 
 Claude Code:
 
@@ -85,7 +164,7 @@ claude mcp add --transport http devkit-mcp http://127.0.0.1:8080/mcp
 claude mcp list
 ```
 
-`.mcp.json`:
+Project `.mcp.json`:
 
 ```json
 {
@@ -98,13 +177,24 @@ claude mcp list
 }
 ```
 
-For stdio clients, point the command at the built binary:
+If `--api-key` / `MCP_API_KEY` is set, add the auth header:
 
-```bash
-cargo build
-# command: /path/to/devkit-mcp/target/debug/devkit-mcp
-# args:    local
+```json
+{
+  "mcpServers": {
+    "devkit-mcp": {
+      "type": "http",
+      "url": "http://127.0.0.1:8080/mcp",
+      "headers": {
+        "Authorization": "Bearer <your-key>"
+      }
+    }
+  }
+}
 ```
+
+> The client must support **MCP 2026-07-28**. The server is stateless and has
+> no `initialize` handshake; older 2025 clients cannot connect.
 
 ### Protocol notes
 
